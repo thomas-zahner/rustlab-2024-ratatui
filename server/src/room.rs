@@ -1,3 +1,4 @@
+use common::ServerEvent;
 use dashmap::DashMap;
 use std::cmp::Ordering;
 use std::{collections::HashSet, sync::Arc};
@@ -6,15 +7,8 @@ use tokio::sync::broadcast::{self, Sender};
 const ROOM_CHANNEL_CAPACITY: usize = 1024;
 pub const DEFAULT_ROOM: &str = "lobby";
 
-#[derive(Clone)]
-pub enum RoomMsg {
-    Joined(String),
-    Left(String),
-    Msg(Arc<str>),
-}
-
 pub struct Room {
-    tx: Sender<RoomMsg>,
+    tx: Sender<ServerEvent>,
     users: HashSet<String>,
 }
 
@@ -35,7 +29,7 @@ impl Rooms {
         Self(Arc::new(DashMap::with_capacity(8)))
     }
 
-    pub fn join(&self, room_name: &str, user_name: &str) -> Sender<RoomMsg> {
+    pub fn join(&self, room_name: &str, user_name: &str) -> Sender<ServerEvent> {
         let mut room = self.0.entry(room_name.into()).or_insert(Room::new());
         room.users.insert(user_name.into());
         room.tx.clone()
@@ -52,7 +46,7 @@ impl Rooms {
         }
     }
 
-    pub fn change(&self, prev_room: &str, next_room: &str, user_name: &str) -> Sender<RoomMsg> {
+    pub fn change(&self, prev_room: &str, next_room: &str, user_name: &str) -> Sender<ServerEvent> {
         self.leave(prev_room, user_name);
         self.join(next_room, user_name)
     }

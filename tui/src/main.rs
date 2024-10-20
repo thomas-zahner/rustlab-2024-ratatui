@@ -1,6 +1,7 @@
 mod args;
 
 use args::Args;
+use common::{RoomEvent, ServerCommand, ServerEvent};
 use crossterm::event::Event;
 use futures::{SinkExt, StreamExt};
 use ratatui::layout::{Constraint, Layout};
@@ -72,14 +73,26 @@ impl App {
     }
 
     pub async fn handle_tcp_event(&mut self, event: String) -> anyhow::Result<()> {
-        if event.starts_with("You joined ") {
-            let room_name = event.split_ascii_whitespace().nth(2).unwrap();
-            self.current_room = room_name.to_owned();
-        } else if event.starts_with("You are ") {
-            let username = event.split_ascii_whitespace().nth(2).unwrap();
-            self.username = username.to_owned();
+        self.messages.push(event.to_string());
+        let event = ServerEvent::from_json_str(&event)?;
+        // match event {}
+        // if event.starts_with("You joined ") {
+        //     let room_name = event.split_ascii_whitespace().nth(2).unwrap();
+        //     self.current_room = room_name.to_owned();
+        // } else if event.starts_with("You are ") {
+        //     let username = event.split_ascii_whitespace().nth(2).unwrap();
+        //     self.username = username.to_owned();
+        // }
+        match event {
+            ServerEvent::Help(help) => {}
+            ServerEvent::RoomEvent(username, RoomEvent::Message(message)) => {}
+            ServerEvent::RoomEvent(username, RoomEvent::Joined(room)) => {}
+            ServerEvent::RoomEvent(username, RoomEvent::Left(room)) => {}
+            ServerEvent::RoomEvent(username, RoomEvent::NameChange(message)) => {}
+            ServerEvent::Error(error) => {}
+            ServerEvent::Rooms(rooms) => {}
+            ServerEvent::Users(users) => {}
         }
-        self.messages.push(event);
         Ok(())
     }
 }
@@ -117,6 +130,10 @@ async fn main() -> anyhow::Result<()> {
     let (reader, writer) = connection.split();
     let mut tcp_writer = FramedWrite::new(writer, LinesCodec::new());
     let mut tcp_reader = FramedRead::new(reader, LinesCodec::new());
+
+    tcp_writer
+        .send(ServerCommand::Name("orhun".to_string()).to_string())
+        .await?;
 
     let mut app = App::new();
     let mut terminal = ratatui::init();
