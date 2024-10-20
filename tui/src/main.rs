@@ -6,7 +6,9 @@ use crossterm::event::Event;
 use futures::{SinkExt, StreamExt};
 use ratatui::layout::{Constraint, Layout};
 use ratatui::style::{Color, Modifier, Style};
-use ratatui::widgets::{Block, Borders, List, ListDirection, ListItem, Widget};
+use ratatui::widgets::{
+    Block, Borders, List, ListDirection, ListItem, ListState, StatefulWidget, Widget,
+};
 use tokio::net::tcp::WriteHalf;
 use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite, LinesCodec};
@@ -17,7 +19,7 @@ struct App {
     messages: Vec<String>,
     current_room: String,
     username: String,
-    textarea: TextArea<'static>,
+    text_area: TextArea<'static>,
 }
 
 impl App {
@@ -31,7 +33,7 @@ impl App {
             messages: Vec::new(),
             current_room: "lobby".to_owned(),
             username: "anonymous".to_owned(),
-            textarea,
+            text_area: textarea,
         }
     }
 
@@ -39,6 +41,7 @@ impl App {
         &mut self,
         event: Event,
         tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
+        list_state: &mut ListState,
     ) -> anyhow::Result<()> {
         match event.into() {
             // Ctrl+C, Ctrl+D, Esc
@@ -57,16 +60,24 @@ impl App {
             Input {
                 key: Key::Enter, ..
             } => {
-                if !self.textarea.is_empty() {
-                    for line in self.textarea.clone().into_lines() {
+                if !self.text_area.is_empty() {
+                    for line in self.text_area.clone().into_lines() {
                         tcp_writer.send(line).await?;
                     }
-                    self.textarea.select_all();
-                    self.textarea.delete_line_by_end();
+                    self.text_area.select_all();
+                    self.text_area.delete_line_by_end();
                 }
             }
+            // Down
+            Input { key: Key::Down, .. } => {
+                list_state.select_previous();
+            }
+            // Up
+            Input { key: Key::Up, .. } => {
+                list_state.select_next();
+            }
             input => {
-                self.textarea.input_without_shortcuts(input);
+                self.text_area.input_without_shortcuts(input);
             }
         }
         Ok(())
@@ -97,11 +108,15 @@ impl App {
     }
 }
 
-impl Widget for &App {
-    fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer)
-    where
-        Self: Sized,
-    {
+impl StatefulWidget for &App {
+    type State = ListState;
+
+    fn render(
+        self,
+        area: ratatui::prelude::Rect,
+        buf: &mut ratatui::prelude::Buffer,
+        state: &mut Self::State,
+    ) {
         let layout =
             Layout::default().constraints([Constraint::Percentage(100), Constraint::Min(3)]);
         let chunks = layout.split(area);
@@ -118,8 +133,8 @@ impl Widget for &App {
         .highlight_symbol(">>")
         .repeat_highlight_symbol(true)
         .direction(ListDirection::BottomToTop);
-        list.render(chunks[0], buf);
-        self.textarea.render(chunks[1], buf);
+        StatefulWidget::render(list, chunks[0], buf, state);
+        self.text_area.render(chunks[1], buf);
     }
 }
 
@@ -136,18 +151,19 @@ async fn main() -> anyhow::Result<()> {
         .await?;
 
     let mut app = App::new();
+    let mut list_state = ListState::default();
     let mut terminal = ratatui::init();
     let mut term_stream = crossterm::event::EventStream::new();
 
     while app.is_running {
         terminal.draw(|f| {
-            f.render_widget(&app, f.area());
+            f.render_stateful_widget(&app, f.area(), &mut list_state);
         })?;
         tokio::select! {
             term_event = term_stream.next() => {
                 if let Some(event) = term_event {
                     let event = event?;
-                    app.handle_terminal_event(event,&mut tcp_writer).await?;
+                    app.handle_terminal_event(event, &mut tcp_writer, &mut list_state).await?;
                 }
             },
             tcp_event = tcp_reader.next() => {
