@@ -1,113 +1,143 @@
 mod args;
 
 use args::Args;
+use crossterm::event::Event;
 use futures::{SinkExt, StreamExt};
 use ratatui::layout::{Constraint, Layout};
 use ratatui::style::{Color, Modifier, Style};
-use ratatui::widgets::{Block, Borders, List, ListDirection, ListItem};
+use ratatui::widgets::{Block, Borders, List, ListDirection, ListItem, Widget};
+use tokio::net::tcp::WriteHalf;
 use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite, LinesCodec};
 use tui_textarea::{Input, Key, TextArea};
 
-fn textarea_new() -> TextArea<'static> {
-    let mut textarea = TextArea::default();
-    textarea.set_cursor_line_style(Style::default());
-    textarea.set_placeholder_text("Start typing...");
-    textarea.set_block(Block::default().borders(Borders::ALL).title("Send message"));
-    textarea
+struct App {
+    is_running: bool,
+    messages: Vec<String>,
+    current_room: String,
+    username: String,
+    textarea: TextArea<'static>,
+}
+
+impl App {
+    pub fn new() -> Self {
+        let mut textarea = TextArea::default();
+        textarea.set_cursor_line_style(Style::default());
+        textarea.set_placeholder_text("Start typing...");
+        textarea.set_block(Block::default().borders(Borders::ALL).title("Send message"));
+        Self {
+            is_running: true,
+            messages: Vec::new(),
+            current_room: "lobby".to_owned(),
+            username: "anonymous".to_owned(),
+            textarea,
+        }
+    }
+
+    pub async fn handle_terminal_event(
+        &mut self,
+        event: Event,
+        tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
+    ) -> anyhow::Result<()> {
+        match event.into() {
+            // Ctrl+C, Ctrl+D, Esc
+            Input { key: Key::Esc, .. }
+            | Input {
+                key: Key::Char('c'),
+                ctrl: true,
+                ..
+            }
+            | Input {
+                key: Key::Char('d'),
+                ctrl: true,
+                ..
+            } => self.is_running = false,
+            // Enter
+            Input {
+                key: Key::Enter, ..
+            } => {
+                if !self.textarea.is_empty() {
+                    for line in self.textarea.clone().into_lines() {
+                        tcp_writer.send(line).await?;
+                    }
+                    self.textarea.select_all();
+                    self.textarea.delete_line_by_end();
+                }
+            }
+            input => {
+                self.textarea.input_without_shortcuts(input);
+            }
+        }
+        Ok(())
+    }
+
+    pub async fn handle_tcp_event(&mut self, event: String) -> anyhow::Result<()> {
+        if event.starts_with("You joined ") {
+            let room_name = event.split_ascii_whitespace().nth(2).unwrap();
+            self.current_room = room_name.to_owned();
+        } else if event.starts_with("You are ") {
+            let username = event.split_ascii_whitespace().nth(2).unwrap();
+            self.username = username.to_owned();
+        }
+        self.messages.push(event);
+        Ok(())
+    }
+}
+
+impl Widget for &App {
+    fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer)
+    where
+        Self: Sized,
+    {
+        let layout =
+            Layout::default().constraints([Constraint::Percentage(100), Constraint::Min(3)]);
+        let chunks = layout.split(area);
+        let title = format!("Room - {} [{}]", self.current_room, self.username);
+        let list = List::new(
+            self.messages
+                .iter()
+                .rev()
+                .map(|msg| ListItem::new(msg.as_str())),
+        )
+        .block(Block::bordered().title(title))
+        .style(Style::default().fg(Color::White))
+        .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
+        .highlight_symbol(">>")
+        .repeat_highlight_symbol(true)
+        .direction(ListDirection::BottomToTop);
+        list.render(chunks[0], buf);
+        self.textarea.render(chunks[1], buf);
+    }
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let addr = Args::parse_socket_addr();
     let mut connection = TcpStream::connect(addr).await?;
-
     let (reader, writer) = connection.split();
-    let mut tcp_sink = FramedWrite::new(writer, LinesCodec::new());
-    let mut tcp_stream = FramedRead::new(reader, LinesCodec::new());
+    let mut tcp_writer = FramedWrite::new(writer, LinesCodec::new());
+    let mut tcp_reader = FramedRead::new(reader, LinesCodec::new());
 
+    let mut app = App::new();
     let mut terminal = ratatui::init();
-
-    let mut textarea = textarea_new();
-    let layout = Layout::default().constraints([Constraint::Percentage(100), Constraint::Min(3)]);
-
-    let mut messages: Vec<String> = Vec::new();
-    let mut current_room = "lobby".to_owned();
     let mut term_stream = crossterm::event::EventStream::new();
 
-    loop {
+    while app.is_running {
         terminal.draw(|f| {
-            let chunks = layout.split(f.area());
-
-            let title = format!("Room - {current_room}");
-
-            let list = List::new(messages.iter().rev().map(|msg| ListItem::new(msg.as_str())))
-                .block(Block::bordered().title(title))
-                .style(Style::default().fg(Color::White))
-                .highlight_style(Style::default().add_modifier(Modifier::ITALIC))
-                .highlight_symbol(">>")
-                .repeat_highlight_symbol(true)
-                .direction(ListDirection::BottomToTop);
-
-            f.render_widget(list, chunks[0]);
-            f.render_widget(&textarea, chunks[1]);
+            f.render_widget(&app, f.area());
         })?;
-
         tokio::select! {
             term_event = term_stream.next() => {
                 if let Some(event) = term_event {
                     let event = event?;
-                    match event.into() {
-                        // escape
-                        Input { key: Key::Esc, .. } |
-                        // ctrl+c
-                        Input { key: Key::Char('c'), ctrl: true, .. } |
-                        // ctrl+d
-                        Input { key: Key::Char('d'), ctrl: true, .. }  => break,
-                        // enter
-                        Input { key: Key::Enter, .. } => {
-                            if textarea.is_empty() {
-                                continue;
-                            }
-                            //messages.extend(textarea.into_lines());
-                            for line in textarea.into_lines() {
-                                // tracing::info!("SENT {line}");
-                                match tcp_sink.send(line).await {
-                                    Ok(_) => (),
-                                    Err(_) => break,
-                                };
-                            }
-                            textarea = textarea_new();
-                        }
-                        // forward input to textarea
-                        input => {
-                            // messages.push(format!("{:?}", input));
-                            // TextArea::input returns if the input modified its text
-                            textarea.input_without_shortcuts(input);
-                        }
-                    }
-                } else {
-                    break;
+                    app.handle_terminal_event(event,&mut tcp_writer).await?;
                 }
             },
-            tcp_event = tcp_stream.next() => match tcp_event {
-                Some(event) => {
-                    let server_msg = event?;
-                    if server_msg.starts_with("You joined ") {
-                        let room_name = server_msg
-                            .split_ascii_whitespace()
-                            .nth(2)
-                            .unwrap();
-                        current_room = room_name.to_owned();
-                    } else if server_msg.starts_with("You are ") {
-                        let name = server_msg
-                            .split_ascii_whitespace()
-                            .nth(2)
-                            .unwrap();
-                    }
-                    messages.push(server_msg);
-                },
-                None => break,
+            tcp_event = tcp_reader.next() => {
+                if let Some(tcp_event) = tcp_event {
+                    app.handle_tcp_event(tcp_event?).await?;
+
+                }
             },
         }
     }
