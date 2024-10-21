@@ -6,20 +6,23 @@ use crossterm::event::Event;
 use futures::{SinkExt, StreamExt};
 use ratatui::layout::{Constraint, Layout};
 use ratatui::style::{Color, Modifier, Style};
-use ratatui::widgets::{
-    Block, Borders, List, ListDirection, ListItem, ListState, StatefulWidget, Widget,
-};
+use ratatui::widgets::{Block, Borders, List, ListDirection, ListItem, ListState};
+use ratatui::Frame;
 use tokio::net::tcp::WriteHalf;
 use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite, LinesCodec};
 use tui_textarea::{Input, Key, TextArea};
+use tui_tree_widget::{Tree, TreeItem, TreeState};
 
 struct App {
     is_running: bool,
     messages: Vec<String>,
+    rooms: Vec<String>,
+    users: Vec<String>,
     current_room: String,
     username: String,
     text_area: TextArea<'static>,
+    list_state: ListState,
 }
 
 impl App {
@@ -31,9 +34,12 @@ impl App {
         Self {
             is_running: true,
             messages: Vec::new(),
+            rooms: Vec::new(),
+            users: Vec::new(),
             current_room: "lobby".to_owned(),
             username: "anonymous".to_owned(),
             text_area: textarea,
+            list_state: ListState::default(),
         }
     }
 
@@ -41,7 +47,6 @@ impl App {
         &mut self,
         event: Event,
         tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
-        list_state: &mut ListState,
     ) -> anyhow::Result<()> {
         match event.into() {
             // Ctrl+C, Ctrl+D, Esc
@@ -70,11 +75,11 @@ impl App {
             }
             // Down
             Input { key: Key::Down, .. } => {
-                list_state.select_previous();
+                self.list_state.select_previous();
             }
             // Up
             Input { key: Key::Up, .. } => {
-                list_state.select_next();
+                self.list_state.select_next();
             }
             input => {
                 self.text_area.input_without_shortcuts(input);
@@ -83,43 +88,48 @@ impl App {
         Ok(())
     }
 
-    pub async fn handle_tcp_event(&mut self, event: String) -> anyhow::Result<()> {
+    pub async fn handle_tcp_event(
+        &mut self,
+        event: String,
+        tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
+    ) -> anyhow::Result<()> {
         self.messages.push(event.to_string());
         let event = ServerEvent::from_json_str(&event)?;
-        // match event {}
-        // if event.starts_with("You joined ") {
-        //     let room_name = event.split_ascii_whitespace().nth(2).unwrap();
-        //     self.current_room = room_name.to_owned();
-        // } else if event.starts_with("You are ") {
-        //     let username = event.split_ascii_whitespace().nth(2).unwrap();
-        //     self.username = username.to_owned();
-        // }
         match event {
             ServerEvent::Help(help) => {}
             ServerEvent::RoomEvent(username, RoomEvent::Message(message)) => {}
-            ServerEvent::RoomEvent(username, RoomEvent::Joined(room)) => {}
-            ServerEvent::RoomEvent(username, RoomEvent::Left(room)) => {}
-            ServerEvent::RoomEvent(username, RoomEvent::NameChange(message)) => {}
+            ServerEvent::RoomEvent(username, RoomEvent::Joined(room))
+            | ServerEvent::RoomEvent(username, RoomEvent::Left(room)) => {
+                self.current_room = room;
+                tcp_writer.send(ServerCommand::Users.to_string()).await?;
+                tcp_writer.send(ServerCommand::Rooms.to_string()).await?;
+            }
+            ServerEvent::RoomEvent(username, RoomEvent::NameChange(new_username)) => {
+                if username == self.username {
+                    self.username = new_username;
+                }
+            }
             ServerEvent::Error(error) => {}
-            ServerEvent::Rooms(rooms) => {}
-            ServerEvent::Users(users) => {}
+            ServerEvent::Rooms(rooms) => {
+                self.rooms = rooms;
+            }
+            ServerEvent::Users(users) => {
+                self.users = users;
+            }
         }
         Ok(())
     }
-}
 
-impl StatefulWidget for &App {
-    type State = ListState;
+    pub fn draw_ui(&mut self, frame: &mut Frame) {
+        let [message_area, text_area] =
+            Layout::vertical([Constraint::Percentage(100), Constraint::Min(3)]).areas(frame.area());
 
-    fn render(
-        self,
-        area: ratatui::prelude::Rect,
-        buf: &mut ratatui::prelude::Buffer,
-        state: &mut Self::State,
-    ) {
-        let layout =
-            Layout::default().constraints([Constraint::Percentage(100), Constraint::Min(3)]);
-        let chunks = layout.split(area);
+        frame.render_widget(&self.text_area, text_area);
+
+        let [message_area, room_area] =
+            Layout::horizontal([Constraint::Percentage(80), Constraint::Percentage(20)])
+                .areas(message_area);
+
         let title = format!("Room - {} [{}]", self.current_room, self.username);
         let list = List::new(
             self.messages
@@ -133,8 +143,37 @@ impl StatefulWidget for &App {
         .highlight_symbol(">>")
         .repeat_highlight_symbol(true)
         .direction(ListDirection::BottomToTop);
-        StatefulWidget::render(list, chunks[0], buf, state);
-        self.text_area.render(chunks[1], buf);
+        frame.render_stateful_widget(list, message_area, &mut self.list_state);
+
+        let leaves = self
+            .rooms
+            .iter()
+            .map(|room| {
+                if room == &self.current_room {
+                    TreeItem::new(
+                        self.current_room.as_str(),
+                        room.as_str(),
+                        self.users
+                            .iter()
+                            .map(|user| TreeItem::new_leaf(user.as_str(), user.as_str()))
+                            .collect(),
+                    )
+                    .unwrap()
+                } else {
+                    TreeItem::new(room.as_str(), room.as_str(), vec![]).unwrap()
+                }
+            })
+            .collect::<Vec<TreeItem<&str>>>();
+        let mut tree_state = TreeState::default();
+        tree_state.open(vec![self.current_room.as_str()]);
+        frame.render_stateful_widget(
+            Tree::new(&leaves)
+                .unwrap()
+                .block(Block::default().borders(Borders::ALL).title("Rooms"))
+                .style(Style::default().fg(Color::White)),
+            room_area,
+            &mut tree_state,
+        );
     }
 }
 
@@ -151,24 +190,23 @@ async fn main() -> anyhow::Result<()> {
         .await?;
 
     let mut app = App::new();
-    let mut list_state = ListState::default();
     let mut terminal = ratatui::init();
     let mut term_stream = crossterm::event::EventStream::new();
 
     while app.is_running {
         terminal.draw(|f| {
-            f.render_stateful_widget(&app, f.area(), &mut list_state);
+            app.draw_ui(f);
         })?;
         tokio::select! {
             term_event = term_stream.next() => {
                 if let Some(event) = term_event {
                     let event = event?;
-                    app.handle_terminal_event(event, &mut tcp_writer, &mut list_state).await?;
+                    app.handle_terminal_event(event, &mut tcp_writer).await?;
                 }
             },
             tcp_event = tcp_reader.next() => {
                 if let Some(tcp_event) = tcp_event {
-                    app.handle_tcp_event(tcp_event?).await?;
+                    app.handle_tcp_event(tcp_event?, &mut tcp_writer).await?;
 
                 }
             },

@@ -17,3 +17,4 @@ tokio-util = { version = "0.7.12", features = ["codec"] }
 tui-textarea = "0.6.1"
 
 common = { path = "../common" }
+tui-tree-widget = "0.22.0"
