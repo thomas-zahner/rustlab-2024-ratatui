@@ -1,13 +1,18 @@
 mod args;
 
 use args::Args;
+use base64::prelude::BASE64_STANDARD;
+use base64::Engine;
 use common::{RoomEvent, ServerCommand, ServerEvent};
 use crossterm::event::Event;
 use futures::{SinkExt, StreamExt};
-use ratatui::layout::{Constraint, Layout};
+use ratatui::layout::{Constraint, Flex, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
-use ratatui::widgets::{Block, Borders, List, ListDirection, ListItem, ListState};
+use ratatui::widgets::{
+    Block, BorderType, Borders, Clear, List, ListDirection, ListItem, ListState,
+};
 use ratatui::Frame;
+use ratatui_explorer::{FileExplorer, Theme};
 use tokio::net::tcp::WriteHalf;
 use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite, LinesCodec};
@@ -23,15 +28,34 @@ struct App {
     username: String,
     text_area: TextArea<'static>,
     list_state: ListState,
+    file_explorer: FileExplorer,
+    show_explorer: bool,
+}
+
+enum AppEvent {
+    FileSelected,
+}
+
+fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {
+    let vertical = Layout::vertical([Constraint::Percentage(percent_y)]).flex(Flex::Center);
+    let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
+    let [area] = vertical.areas(area);
+    let [area] = horizontal.areas(area);
+    area
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new() -> anyhow::Result<Self> {
         let mut textarea = TextArea::default();
         textarea.set_cursor_line_style(Style::default());
         textarea.set_placeholder_text("Start typing...");
         textarea.set_block(Block::default().borders(Borders::ALL).title("Send message"));
-        Self {
+        let theme = Theme::default()
+            .add_default_title()
+            .with_title_bottom(|fe| format!("[{} files]", fe.files().len()).into())
+            .with_block(Block::bordered().border_type(BorderType::Rounded));
+        let file_explorer = FileExplorer::with_theme(theme)?;
+        Ok(Self {
             is_running: true,
             messages: Vec::new(),
             rooms: Vec::new(),
@@ -40,14 +64,31 @@ impl App {
             username: "anonymous".to_owned(),
             text_area: textarea,
             list_state: ListState::default(),
-        }
+            file_explorer,
+            show_explorer: false,
+        })
     }
 
     pub async fn handle_terminal_event(
         &mut self,
         event: Event,
         tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
+        client_writer: &mut tokio::sync::mpsc::UnboundedSender<AppEvent>,
     ) -> anyhow::Result<()> {
+        if self.show_explorer {
+            if let Input { key: Key::Esc, .. } = event.clone().into() {
+                self.show_explorer = false;
+            } else if let Input {
+                key: Key::Enter, ..
+            } = event.clone().into()
+            {
+                self.show_explorer = false;
+                client_writer.send(AppEvent::FileSelected)?;
+            } else {
+                self.file_explorer.handle(&event)?;
+            }
+            return Ok(());
+        }
         match event.into() {
             // Ctrl+C, Ctrl+D, Esc
             Input { key: Key::Esc, .. }
@@ -81,6 +122,14 @@ impl App {
             Input { key: Key::Up, .. } => {
                 self.list_state.select_next();
             }
+            // Show explorer
+            Input {
+                key: Key::Char('e'),
+                ctrl: true,
+                ..
+            } => {
+                self.show_explorer = !self.show_explorer;
+            }
             input => {
                 self.text_area.input_without_shortcuts(input);
             }
@@ -109,12 +158,34 @@ impl App {
                     self.username = new_username;
                 }
             }
+            ServerEvent::RoomEvent(username, RoomEvent::File(name, contents)) => {}
             ServerEvent::Error(error) => {}
             ServerEvent::Rooms(rooms) => {
                 self.rooms = rooms;
             }
             ServerEvent::Users(users) => {
                 self.users = users;
+            }
+        }
+        Ok(())
+    }
+
+    pub async fn handle_event(
+        &mut self,
+        event: AppEvent,
+        tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
+    ) -> anyhow::Result<()> {
+        match event {
+            AppEvent::FileSelected => {
+                let file = self.file_explorer.current();
+                if file.is_dir() {
+                    return Ok(());
+                }
+                let contents = tokio::fs::read(file.path()).await?;
+                let base64 = BASE64_STANDARD.encode(contents);
+                tcp_writer
+                    .send(ServerCommand::File(file.name().to_string(), base64).to_string())
+                    .await?;
             }
         }
         Ok(())
@@ -174,6 +245,12 @@ impl App {
             room_area,
             &mut tree_state,
         );
+
+        if self.show_explorer {
+            let popup_area = popup_area(frame.area(), 80, 80);
+            frame.render_widget(Clear, popup_area);
+            frame.render_widget(&self.file_explorer.widget(), popup_area);
+        }
     }
 }
 
@@ -185,11 +262,13 @@ async fn main() -> anyhow::Result<()> {
     let mut tcp_writer = FramedWrite::new(writer, LinesCodec::new());
     let mut tcp_reader = FramedRead::new(reader, LinesCodec::new());
 
+    let (mut client_writer, mut client_reader) = tokio::sync::mpsc::unbounded_channel::<AppEvent>();
+
     tcp_writer
         .send(ServerCommand::Name("orhun".to_string()).to_string())
         .await?;
 
-    let mut app = App::new();
+    let mut app = App::new()?;
     let mut terminal = ratatui::init();
     let mut term_stream = crossterm::event::EventStream::new();
 
@@ -201,15 +280,19 @@ async fn main() -> anyhow::Result<()> {
             term_event = term_stream.next() => {
                 if let Some(event) = term_event {
                     let event = event?;
-                    app.handle_terminal_event(event, &mut tcp_writer).await?;
+                    app.handle_terminal_event(event, &mut tcp_writer, &mut client_writer).await?;
                 }
             },
             tcp_event = tcp_reader.next() => {
                 if let Some(tcp_event) = tcp_event {
                     app.handle_tcp_event(tcp_event?, &mut tcp_writer).await?;
-
                 }
             },
+            client_event = client_reader.recv() => {
+                if let Some(client_event) = client_event {
+                    app.handle_event(client_event, &mut tcp_writer).await?;
+                }
+            }
         }
     }
 

@@ -9,7 +9,7 @@ use tokio_util::codec::{FramedRead, FramedWrite, LinesCodec, LinesCodecError};
 
 use crate::{room::Rooms, user::Users};
 
-const MAX_MSG_LEN: usize = 400;
+const MAX_MSG_LEN: usize = usize::MAX;
 
 pub struct Connection {
     tcp: TcpStream,
@@ -35,7 +35,7 @@ impl Connection {
     pub async fn handle(&mut self) {
         let (reader, writer) = self.tcp.split();
         let mut stream = FramedRead::new(reader, LinesCodec::new_with_max_length(MAX_MSG_LEN));
-        let mut sink = FramedWrite::new(writer, LinesCodec::new_with_max_length(MAX_MSG_LEN + 100));
+        let mut sink = FramedWrite::new(writer, LinesCodec::new_with_max_length(MAX_MSG_LEN));
 
         let mut exit_result = sink
             .send(ServerEvent::Help(SERVER_COMMANDS.to_string()).as_json_str())
@@ -116,6 +116,9 @@ impl Connection {
                         Ok(ServerCommand::Users) => {
                             let users_list = self.rooms.list_users(&room_name).unwrap();
                             b!(sink.send(ServerEvent::Users(users_list).as_json_str()).await);
+                        },
+                        Ok(ServerCommand::File(filename, contents)) => {
+                            let _ = room_tx.send(ServerEvent::RoomEvent(self.username.to_string(), RoomEvent::File(filename.clone(), contents.clone())));
                         },
                         Ok(ServerCommand::Quit) => {
                             break Ok(());

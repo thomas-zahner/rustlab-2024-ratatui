@@ -8,6 +8,7 @@ pub enum ServerCommand {
     Rooms,
     Join(String),
     Users,
+    File(String, String),
     Quit,
 }
 
@@ -19,6 +20,7 @@ impl fmt::Display for ServerCommand {
             ServerCommand::Rooms => write!(f, "/rooms"),
             ServerCommand::Join(room) => write!(f, "/join {}", room),
             ServerCommand::Users => write!(f, "/users"),
+            ServerCommand::File(name, encoded) => write!(f, "/file {} {}", name, encoded),
             ServerCommand::Quit => write!(f, "/quit"),
         }
     }
@@ -40,6 +42,11 @@ impl TryFrom<String> for ServerCommand {
                 Ok(ServerCommand::Join(room))
             }
             Some("/users") => Ok(ServerCommand::Users),
+            Some("/file") => {
+                let name = parts.next().ok_or("File name is required")?.to_string();
+                let encoded = parts.next().ok_or("File content is required")?.to_string();
+                Ok(ServerCommand::File(name, encoded))
+            }
             Some("/quit") => Ok(ServerCommand::Quit),
             _ => Err(format!("Invalid command: {}", value)),
         }
@@ -58,6 +65,7 @@ pub enum ServerEvent {
 #[derive(Clone, Serialize, Deserialize)]
 pub enum RoomEvent {
     Message(String),
+    File(String, String),
     Joined(String),
     Left(String),
     NameChange(String),

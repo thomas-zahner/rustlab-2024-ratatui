@@ -18,3 +18,5 @@ tui-textarea = "0.6.1"
 
 common = { path = "../common" }
 tui-tree-widget = "0.22.0"
+ratatui-explorer = "0.1.2"
+base64 = "0.22.1"
