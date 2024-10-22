@@ -3,8 +3,8 @@ use base64::Engine;
 use common::{RoomEvent, ServerCommand, ServerEvent};
 use crossterm::event::Event as CrosstermEvent;
 use futures::SinkExt;
-use ratatui::style::Style;
-use ratatui::widgets::{Block, BorderType, Borders};
+use ratatui::style::{Color, Modifier, Style};
+use ratatui::widgets::{Block, BorderType};
 use ratatui_explorer::{FileExplorer, Theme};
 use ratatui_image::picker::{Picker, ProtocolType};
 use tokio::net::tcp::WriteHalf;
@@ -39,16 +39,23 @@ impl App {
         let room_list = RoomList::default();
 
         // Create text input
-        let mut textarea = TextArea::default();
-        textarea.set_cursor_line_style(Style::default());
-        textarea.set_placeholder_text("Start typing...");
-        textarea.set_block(Block::default().borders(Borders::ALL).title("Send message"));
+        let mut text_area = TextArea::default();
+        text_area.set_cursor_line_style(Style::default());
+        text_area.set_placeholder_text("Start typing...");
 
         // Create a file explorer
         let file_explorer = FileExplorer::with_theme(
             Theme::default()
                 .add_default_title()
-                .with_title_bottom(|fe| format!("[{} files]", fe.files().len()).into())
+                .with_title_bottom(|fe| format!("[ {} files ]", fe.files().len()).into())
+                .with_style(Style::default().fg(Color::Yellow))
+                .with_highlight_item_style(Style::default().add_modifier(Modifier::BOLD))
+                .with_highlight_dir_style(
+                    Style::default()
+                        .fg(Color::Blue)
+                        .add_modifier(Modifier::BOLD),
+                )
+                .with_highlight_symbol("> ")
                 .with_block(Block::bordered().border_type(BorderType::Rounded)),
         )?;
 
@@ -56,7 +63,7 @@ impl App {
             is_running: true,
             message_list,
             room_list,
-            text_area: textarea,
+            text_area,
             file_explorer,
             popup: Popup::None,
         })

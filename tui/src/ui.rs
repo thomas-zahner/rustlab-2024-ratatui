@@ -1,5 +1,6 @@
 use ratatui::layout::{Constraint, Layout};
-use ratatui::widgets::Clear;
+use ratatui::text::Line;
+use ratatui::widgets::{Block, Clear};
 use ratatui::Frame;
 use ratatui_image::StatefulImage;
 
@@ -11,6 +12,13 @@ impl App {
         let [message_area, text_area] =
             Layout::vertical([Constraint::Percentage(100), Constraint::Min(3)]).areas(frame.area());
 
+        self.text_area.set_block(
+            Block::bordered()
+                .title(format!("[ Send message ({}) ]", self.message_list.room))
+                .title_bottom(
+                    Line::from(format!("[ {} ]", self.message_list.username)).right_aligned(),
+                ),
+        );
         frame.render_widget(&self.text_area, text_area);
 
         let [message_area, room_area] =
@@ -21,7 +29,7 @@ impl App {
         frame.render_widget(&mut self.room_list, room_area);
 
         if self.popup == Popup::FileExplorer {
-            let popup_area = Popup::area(frame.area(), 80, 80);
+            let popup_area = Popup::area(frame.area(), 50, 50);
             frame.render_widget(Clear, popup_area);
             frame.render_widget(&self.file_explorer.widget(), popup_area);
         } else if let Popup::ImagePreview(protocol) = &mut self.popup {

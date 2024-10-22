@@ -54,6 +54,7 @@ impl TryFrom<String> for ServerCommand {
 }
 
 pub type Username = String;
+pub type Room = String;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ServerEvent {
@@ -68,9 +69,9 @@ pub enum ServerEvent {
 pub enum RoomEvent {
     Message(String),
     File(String, String),
-    Joined(String),
-    Left(String),
-    NameChange(String),
+    Joined(Room),
+    Left(Room),
+    NameChange(Username),
 }
 
 impl ServerEvent {

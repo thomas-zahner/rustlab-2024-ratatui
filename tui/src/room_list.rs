@@ -2,7 +2,7 @@ use ratatui::{
     buffer::Buffer,
     layout::Rect,
     style::{Color, Style},
-    widgets::{Block, Borders, StatefulWidget, Widget},
+    widgets::{Block, StatefulWidget, Widget},
 };
 use tui_tree_widget::{Tree, TreeItem, TreeState};
 
@@ -38,12 +38,12 @@ impl Widget for &mut RoomList {
             .flatten()
             .collect::<Vec<TreeItem<String>>>();
 
-        let tree = Tree::new(&leaves)
-            .unwrap()
-            .block(Block::default().borders(Borders::ALL).title("Rooms"))
-            .style(Style::default().fg(Color::White));
-
-        self.state.open(vec![self.room.as_str().to_string()]);
-        StatefulWidget::render(tree, area, buf, &mut self.state);
+        if let Ok(tree) = Tree::new(&leaves) {
+            let tree = tree
+                .block(Block::bordered().title("[ Rooms ]"))
+                .style(Style::default().fg(Color::White));
+            self.state.open(vec![self.room.as_str().to_string()]);
+            StatefulWidget::render(tree, area, buf, &mut self.state);
+        }
     }
 }

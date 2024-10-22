@@ -4,15 +4,7 @@ pub mod logger;
 pub mod room;
 pub mod user;
 
-const SERVER_COMMANDS: &str = "
-Server commands
-  /help - print this message
-  /name {name} - change name
-  /rooms - list rooms
-  /join {room} - joins room
-  /users - list users in room
-  /quit - quit server
-";
+const SERVER_COMMANDS: &str = "/help | /name {name} | /rooms | /join {room} | /users | /quit";
 
 #[macro_export]
 macro_rules! b {
