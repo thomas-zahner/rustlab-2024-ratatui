@@ -4,7 +4,7 @@ use args::Args;
 use base64::prelude::BASE64_STANDARD;
 use base64::Engine;
 use common::{RoomEvent, ServerCommand, ServerEvent};
-use crossterm::event::Event;
+use crossterm::event::Event as CrosstermEvent;
 use futures::{SinkExt, StreamExt};
 use ratatui::layout::{Constraint, Flex, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
@@ -32,7 +32,9 @@ struct App {
     show_explorer: bool,
 }
 
-enum AppEvent {
+#[derive(Clone)]
+enum Event {
+    Terminal(CrosstermEvent),
     FileSelected,
 }
 
@@ -69,71 +71,87 @@ impl App {
         })
     }
 
-    pub async fn handle_terminal_event(
+    pub async fn handle_event(
         &mut self,
         event: Event,
         tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
-        client_writer: &mut tokio::sync::mpsc::UnboundedSender<AppEvent>,
+        client_writer: &mut tokio::sync::mpsc::UnboundedSender<Event>,
     ) -> anyhow::Result<()> {
-        if self.show_explorer {
-            if let Input { key: Key::Esc, .. } = event.clone().into() {
-                self.show_explorer = false;
-            } else if let Input {
-                key: Key::Enter, ..
-            } = event.clone().into()
-            {
-                self.show_explorer = false;
-                client_writer.send(AppEvent::FileSelected)?;
-            } else {
-                self.file_explorer.handle(&event)?;
-            }
-            return Ok(());
-        }
-        match event.into() {
-            // Ctrl+C, Ctrl+D, Esc
-            Input { key: Key::Esc, .. }
-            | Input {
-                key: Key::Char('c'),
-                ctrl: true,
-                ..
-            }
-            | Input {
-                key: Key::Char('d'),
-                ctrl: true,
-                ..
-            } => self.is_running = false,
-            // Enter
-            Input {
-                key: Key::Enter, ..
-            } => {
-                if !self.text_area.is_empty() {
-                    for line in self.text_area.clone().into_lines() {
-                        tcp_writer.send(line).await?;
+        match event {
+            Event::Terminal(event) => {
+                if self.show_explorer {
+                    if let Input { key: Key::Esc, .. } = event.clone().into() {
+                        self.show_explorer = false;
+                    } else if let Input {
+                        key: Key::Enter, ..
+                    } = event.clone().into()
+                    {
+                        self.show_explorer = false;
+                        client_writer.send(Event::FileSelected)?;
+                    } else {
+                        self.file_explorer.handle(&event)?;
                     }
-                    self.text_area.select_all();
-                    self.text_area.delete_line_by_end();
+                    return Ok(());
+                }
+                match event.into() {
+                    // Ctrl+C, Ctrl+D, Esc
+                    Input { key: Key::Esc, .. }
+                    | Input {
+                        key: Key::Char('c'),
+                        ctrl: true,
+                        ..
+                    }
+                    | Input {
+                        key: Key::Char('d'),
+                        ctrl: true,
+                        ..
+                    } => self.is_running = false,
+                    // Enter
+                    Input {
+                        key: Key::Enter, ..
+                    } => {
+                        if !self.text_area.is_empty() {
+                            for line in self.text_area.clone().into_lines() {
+                                tcp_writer.send(line).await?;
+                            }
+                            self.text_area.select_all();
+                            self.text_area.delete_line_by_end();
+                        }
+                    }
+                    // Down
+                    Input { key: Key::Down, .. } => {
+                        self.list_state.select_previous();
+                    }
+                    // Up
+                    Input { key: Key::Up, .. } => {
+                        self.list_state.select_next();
+                    }
+                    // Show explorer
+                    Input {
+                        key: Key::Char('e'),
+                        ctrl: true,
+                        ..
+                    } => {
+                        self.show_explorer = !self.show_explorer;
+                    }
+                    input => {
+                        self.text_area.input_without_shortcuts(input);
+                    }
                 }
             }
-            // Down
-            Input { key: Key::Down, .. } => {
-                self.list_state.select_previous();
-            }
-            // Up
-            Input { key: Key::Up, .. } => {
-                self.list_state.select_next();
-            }
-            // Show explorer
-            Input {
-                key: Key::Char('e'),
-                ctrl: true,
-                ..
-            } => {
-                self.show_explorer = !self.show_explorer;
-            }
-            input => {
-                self.text_area.input_without_shortcuts(input);
+            Event::FileSelected => {
+                let file = self.file_explorer.current();
+                if file.is_dir() {
+                    return Ok(());
+                }
+                let contents = tokio::fs::read(file.path()).await?;
+                let base64 = BASE64_STANDARD.encode(contents);
+                tcp_writer
+                    .send(ServerCommand::File(file.name().to_string(), base64).to_string())
+                    .await?;
             }
         }
+
         Ok(())
     }
 
@@ -165,27 +183,6 @@ impl App {
             }
             ServerEvent::Users(users) => {
                 self.users = users;
-            }
-        }
-        Ok(())
-    }
-
-    pub async fn handle_event(
-        &mut self,
-        event: AppEvent,
-        tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
-    ) -> anyhow::Result<()> {
-        match event {
-            AppEvent::FileSelected => {
-                let file = self.file_explorer.current();
-                if file.is_dir() {
-                    return Ok(());
-                }
-                let contents = tokio::fs::read(file.path()).await?;
-                let base64 = BASE64_STANDARD.encode(contents);
-                tcp_writer
-                    .send(ServerCommand::File(file.name().to_string(), base64).to_string())
-                    .await?;
             }
         }
         Ok(())
@@ -262,7 +259,7 @@ async fn main() -> anyhow::Result<()> {
     let mut tcp_writer = FramedWrite::new(writer, LinesCodec::new());
     let mut tcp_reader = FramedRead::new(reader, LinesCodec::new());
 
-    let (mut client_writer, mut client_reader) = tokio::sync::mpsc::unbounded_channel::<AppEvent>();
+    let (mut client_writer, mut client_reader) = tokio::sync::mpsc::unbounded_channel::<Event>();
 
     tcp_writer
         .send(ServerCommand::Name("orhun".to_string()).to_string())
@@ -279,20 +276,20 @@ async fn main() -> anyhow::Result<()> {
         tokio::select! {
             term_event = term_stream.next() => {
                 if let Some(event) = term_event {
-                    let event = event?;
-                    app.handle_terminal_event(event, &mut tcp_writer, &mut client_writer).await?;
+                    let event = Event::Terminal(event?);
+                    app.handle_event(event, &mut tcp_writer, &mut client_writer).await?;
                 }
             },
+            client_event = client_reader.recv() => {
+                if let Some(event) = client_event {
+                    app.handle_event(event, &mut tcp_writer, &mut client_writer).await?;
+                }
+            }
             tcp_event = tcp_reader.next() => {
                 if let Some(tcp_event) = tcp_event {
                     app.handle_tcp_event(tcp_event?, &mut tcp_writer).await?;
                 }
             },
-            client_event = client_reader.recv() => {
-                if let Some(client_event) = client_event {
-                    app.handle_event(client_event, &mut tcp_writer).await?;
-                }
-            }
         }
     }
 
