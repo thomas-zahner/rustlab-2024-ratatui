@@ -53,10 +53,12 @@ impl TryFrom<String> for ServerCommand {
     }
 }
 
+pub type Username = String;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ServerEvent {
-    Help(String),
-    RoomEvent(String, RoomEvent),
+    Help(Username, String),
+    RoomEvent(Username, RoomEvent),
     Error(String),
     Rooms(Vec<String>),
     Users(Vec<String>),

@@ -21,7 +21,7 @@ pub struct Connection {
 
 impl Connection {
     pub fn new(tcp: TcpStream, users: Users, rooms: Rooms, addr: SocketAddr) -> Self {
-        let username = petname::petname(2, "").expect("failed to generate username");
+        let username = petname::petname(1, "").expect("failed to generate username");
         tracing::debug!("{addr} connected with the name: {username}");
         Self {
             tcp,
@@ -38,7 +38,9 @@ impl Connection {
         let mut sink = FramedWrite::new(writer, LinesCodec::new_with_max_length(MAX_MSG_LEN));
 
         let mut exit_result = sink
-            .send(ServerEvent::Help(SERVER_COMMANDS.to_string()).as_json_str())
+            .send(
+                ServerEvent::Help(self.username.clone(), SERVER_COMMANDS.to_string()).as_json_str(),
+            )
             .await;
         // let mut exit_result = sink
         //     .send(format!("{SERVER_COMMANDS}\nYou are {}", self.username))
@@ -86,7 +88,7 @@ impl Connection {
 
                     match ServerCommand::try_from(user_msg.clone()) {
                         Ok(ServerCommand::Help) => {
-                            b!(sink.send(ServerEvent::Help(SERVER_COMMANDS.to_string()).as_json_str()).await);
+                            b!(sink.send(ServerEvent::Help(self.username.clone(), SERVER_COMMANDS.to_string()).as_json_str()).await);
                         },
                         Ok(ServerCommand::Name(new_name)) => {
                             let changed_name = self.users.insert(new_name.clone());
