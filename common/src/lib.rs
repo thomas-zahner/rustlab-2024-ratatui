@@ -53,7 +53,7 @@ impl TryFrom<String> for ServerCommand {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ServerEvent {
     Help(String),
     RoomEvent(String, RoomEvent),
@@ -62,7 +62,7 @@ pub enum ServerEvent {
     Users(Vec<String>),
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum RoomEvent {
     Message(String),
     File(String, String),

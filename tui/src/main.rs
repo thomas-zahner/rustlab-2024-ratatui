@@ -13,6 +13,9 @@ use ratatui::widgets::{
 };
 use ratatui::Frame;
 use ratatui_explorer::{FileExplorer, Theme};
+use ratatui_image::picker::{Picker, ProtocolType};
+use ratatui_image::protocol::StatefulProtocol;
+use ratatui_image::StatefulImage;
 use tokio::net::tcp::WriteHalf;
 use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite, LinesCodec};
@@ -21,7 +24,7 @@ use tui_tree_widget::{Tree, TreeItem, TreeState};
 
 struct App {
     is_running: bool,
-    messages: Vec<String>,
+    messages: Vec<ServerEvent>,
     rooms: Vec<String>,
     users: Vec<String>,
     current_room: String,
@@ -29,7 +32,24 @@ struct App {
     text_area: TextArea<'static>,
     list_state: ListState,
     file_explorer: FileExplorer,
-    show_explorer: bool,
+    popup: Popup,
+}
+
+enum Popup {
+    None,
+    FileExplorer,
+    ImagePreview(Box<dyn StatefulProtocol>),
+}
+
+impl PartialEq for Popup {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Popup::None, Popup::None) => true,
+            (Popup::FileExplorer, Popup::FileExplorer) => true,
+            (Popup::ImagePreview(_), Popup::ImagePreview(_)) => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -67,7 +87,7 @@ impl App {
             text_area: textarea,
             list_state: ListState::default(),
             file_explorer,
-            show_explorer: false,
+            popup: Popup::None,
         })
     }
 
@@ -79,17 +99,22 @@ impl App {
     ) -> anyhow::Result<()> {
         match event {
             Event::Terminal(event) => {
-                if self.show_explorer {
+                if self.popup == Popup::FileExplorer {
                     if let Input { key: Key::Esc, .. } = event.clone().into() {
-                        self.show_explorer = false;
+                        self.popup = Popup::None;
                     } else if let Input {
                         key: Key::Enter, ..
                     } = event.clone().into()
                     {
-                        self.show_explorer = false;
+                        self.popup = Popup::None;
                         client_writer.send(Event::FileSelected)?;
                     } else {
                         self.file_explorer.handle(&event)?;
+                    }
+                    return Ok(());
+                } else if let Popup::ImagePreview(_) = self.popup {
+                    if let Input { key: Key::Esc, .. } = event.clone().into() {
+                        self.popup = Popup::None;
                     }
                     return Ok(());
                 }
@@ -132,7 +157,31 @@ impl App {
                         ctrl: true,
                         ..
                     } => {
-                        self.show_explorer = !self.show_explorer;
+                        self.popup = Popup::FileExplorer;
+                    }
+                    // Preview file
+                    Input {
+                        key: Key::Char('p'),
+                        ctrl: true,
+                        ..
+                    } => {
+                        let selected_event = self
+                            .list_state
+                            .selected()
+                            .map(|v| self.messages[self.messages.len() - (v + 1)].clone());
+
+                        if let Some(ServerEvent::RoomEvent(_, RoomEvent::File(_, contents))) =
+                            selected_event
+                        {
+                            let data = BASE64_STANDARD.decode(contents.as_bytes())?;
+                            let img = image::load_from_memory(&data)?;
+                            let user_fontsize = (7, 14);
+                            let user_protocol = ProtocolType::Halfblocks;
+                            let mut picker = Picker::new(user_fontsize);
+                            picker.protocol_type = user_protocol;
+                            let image = picker.new_resize_protocol(img);
+                            self.popup = Popup::ImagePreview(image);
+                        }
                     }
                     input => {
                         self.text_area.input_without_shortcuts(input);
@@ -155,13 +204,14 @@ impl App {
         Ok(())
     }
 
+    #[allow(unused_variables)]
     pub async fn handle_tcp_event(
         &mut self,
         event: String,
         tcp_writer: &mut FramedWrite<WriteHalf<'_>, LinesCodec>,
     ) -> anyhow::Result<()> {
-        self.messages.push(event.to_string());
         let event = ServerEvent::from_json_str(&event)?;
+        self.messages.push(event.clone());
         match event {
             ServerEvent::Help(help) => {}
             ServerEvent::RoomEvent(username, RoomEvent::Message(message)) => {}
@@ -203,7 +253,7 @@ impl App {
             self.messages
                 .iter()
                 .rev()
-                .map(|msg| ListItem::new(msg.as_str())),
+                .map(|event| ListItem::new(event.as_json_str())),
         )
         .block(Block::bordered().title(title))
         .style(Style::default().fg(Color::White))
@@ -243,10 +293,15 @@ impl App {
             &mut tree_state,
         );
 
-        if self.show_explorer {
+        if self.popup == Popup::FileExplorer {
             let popup_area = popup_area(frame.area(), 80, 80);
             frame.render_widget(Clear, popup_area);
             frame.render_widget(&self.file_explorer.widget(), popup_area);
+        } else if let Popup::ImagePreview(protocol) = &mut self.popup {
+            let popup_area = popup_area(frame.area(), 80, 80);
+            frame.render_widget(Clear, popup_area);
+            let image = StatefulImage::new(None);
+            frame.render_stateful_widget(image, popup_area, protocol);
         }
     }
 }

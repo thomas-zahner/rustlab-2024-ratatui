@@ -20,3 +20,5 @@ common = { path = "../common" }
 tui-tree-widget = "0.22.0"
 ratatui-explorer = "0.1.2"
 base64 = "0.22.1"
+ratatui-image = "2.0.1"
+image = "0.25.4"
