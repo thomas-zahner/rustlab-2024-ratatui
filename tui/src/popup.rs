@@ -22,6 +22,7 @@ use crate::app::Event;
 pub enum Popup {
     FileExplorer(FileExplorer, UnboundedSender<Event>),
     ImagePreview(Box<dyn StatefulProtocol>, UnboundedSender<Event>),
+    MarkdownPreview(String, UnboundedSender<Event>),
 }
 
 impl Popup {
@@ -41,7 +42,7 @@ impl Popup {
     pub fn image_preview(
         contents: String,
         event_sender: UnboundedSender<Event>,
-    ) -> Result<Popup, anyhow::Error> {
+    ) -> anyhow::Result<Popup> {
         let data = BASE64_STANDARD.decode(contents.as_bytes())?;
         let img = image::load_from_memory(&data)?;
         let user_fontsize = (7, 14);
@@ -50,6 +51,17 @@ impl Popup {
         picker.protocol_type = user_protocol;
         let image = picker.new_resize_protocol(img);
         Ok(Popup::ImagePreview(image, event_sender))
+    }
+
+    pub fn markdown_preview(
+        contents: String,
+        event_sender: UnboundedSender<Event>,
+    ) -> anyhow::Result<Popup> {
+        let contents = BASE64_STANDARD.decode(contents.as_bytes())?;
+        Ok(Popup::MarkdownPreview(
+            String::from_utf8(contents)?,
+            event_sender,
+        ))
     }
 
     pub async fn handle_input(
@@ -76,6 +88,9 @@ impl Popup {
             Popup::ImagePreview(_, ref event_sender) if input.key == Key::Esc => {
                 let _ = event_sender.send(Event::PopupClosed);
             }
+            Popup::MarkdownPreview(_, ref event_sender) if input.key == Key::Esc => {
+                let _ = event_sender.send(Event::PopupClosed);
+            }
             _ => {}
         }
         Ok(())
@@ -87,6 +102,9 @@ impl Widget for &mut Popup {
         match self {
             Popup::FileExplorer(explorer, _) => render_explorer(area, buf, explorer),
             Popup::ImagePreview(ref mut protocol, _) => render_image_preview(area, buf, protocol),
+            Popup::MarkdownPreview(contents, _) => {
+                render_markdown_preview(area, buf, contents);
+            }
         }
     }
 }
@@ -102,6 +120,13 @@ fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn Sta
     Clear.render(popup_area, buf);
     let image = StatefulImage::new(None);
     image.render(popup_area, buf, protocol);
+}
+
+fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
+    let popup_area = popup_area(area, 80, 80);
+    Clear.render(popup_area, buf);
+    let text = tui_markdown::from_str(contents);
+    text.render(popup_area, buf);
 }
 
 fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {

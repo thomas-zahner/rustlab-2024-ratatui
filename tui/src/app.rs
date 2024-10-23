@@ -152,9 +152,14 @@ impl App {
     fn preview_file(&mut self) -> Result<(), anyhow::Error> {
         let selected_event = self.message_list.selected_event();
         let event_sender = self.event_sender.clone();
-        if let Some(ServerEvent::RoomEvent(_, RoomEvent::File(_, contents))) = selected_event {
-            let image_preview = Popup::image_preview(contents, event_sender)?;
-            self.popup = Some(image_preview);
+        if let Some(ServerEvent::RoomEvent(_, RoomEvent::File(filename, contents))) = selected_event
+        {
+            let popup = if filename.ends_with("md") {
+                Popup::markdown_preview(contents, event_sender)
+            } else {
+                Popup::image_preview(contents, event_sender)
+            }?;
+            self.popup = Some(popup);
         }
         Ok(())
     }
