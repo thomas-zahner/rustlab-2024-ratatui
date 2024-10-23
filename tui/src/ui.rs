@@ -1,11 +1,11 @@
-use ratatui::layout::{Constraint, Layout};
-use ratatui::text::Line;
-use ratatui::widgets::{Block, Clear};
-use ratatui::Frame;
-use ratatui_image::StatefulImage;
+use ratatui::{
+    layout::{Constraint, Layout},
+    text::Line,
+    widgets::Block,
+    Frame,
+};
 
 use crate::app::App;
-use crate::popup::Popup;
 
 impl App {
     pub fn draw_ui(&mut self, frame: &mut Frame) {
@@ -14,7 +14,10 @@ impl App {
 
         self.text_area.set_block(
             Block::bordered()
-                .title(format!("[ Send message ({}) ]", self.message_list.room))
+                .title(format!(
+                    "[ Send message ({}) ]",
+                    self.message_list.room_name
+                ))
                 .title_bottom(
                     Line::from(format!("[ {} ]", self.message_list.username)).right_aligned(),
                 ),
@@ -22,21 +25,13 @@ impl App {
         frame.render_widget(&self.text_area, text_area);
 
         let [message_area, room_area] =
-            Layout::horizontal([Constraint::Percentage(80), Constraint::Percentage(20)])
-                .areas(message_area);
+            Layout::horizontal(Constraint::from_percentages([80, 20])).areas(message_area);
 
         frame.render_widget(&mut self.message_list, message_area);
         frame.render_widget(&mut self.room_list, room_area);
 
-        if self.popup == Popup::FileExplorer {
-            let popup_area = Popup::area(frame.area(), 50, 50);
-            frame.render_widget(Clear, popup_area);
-            frame.render_widget(&self.file_explorer.widget(), popup_area);
-        } else if let Popup::ImagePreview(protocol) = &mut self.popup {
-            let popup_area = Popup::area(frame.area(), 80, 80);
-            frame.render_widget(Clear, popup_area);
-            let image = StatefulImage::new(None);
-            frame.render_stateful_widget(image, popup_area, protocol);
+        if let Some(popup) = &mut self.popup {
+            frame.render_widget(popup, frame.area());
         }
     }
 }

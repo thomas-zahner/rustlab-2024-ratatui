@@ -1,3 +1,4 @@
+use common::{RoomName, Username};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -9,18 +10,18 @@ use tui_tree_widget::{Tree, TreeItem, TreeState};
 #[derive(Debug, Default)]
 pub struct RoomList {
     pub state: TreeState<String>,
-    pub rooms: Vec<String>,
-    pub users: Vec<String>,
-    pub room: String,
+    pub rooms: Vec<RoomName>,
+    pub users: Vec<Username>,
+    pub room_name: RoomName,
 }
 
 impl Widget for &mut RoomList {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let leaves = self
+        let leaves: Vec<TreeItem<String>> = self
             .rooms
             .iter()
-            .map(|room| {
-                if room == &self.room {
+            .flat_map(|room| {
+                if *room == self.room_name {
                     TreeItem::new(
                         room.as_str().to_string(),
                         room.as_str().to_string(),
@@ -35,14 +36,13 @@ impl Widget for &mut RoomList {
                     TreeItem::new(room.as_str().to_string(), room.as_str(), vec![])
                 }
             })
-            .flatten()
-            .collect::<Vec<TreeItem<String>>>();
+            .collect();
 
         if let Ok(tree) = Tree::new(&leaves) {
             let tree = tree
                 .block(Block::bordered().title("[ Rooms ]"))
                 .style(Style::default().fg(Color::White));
-            self.state.open(vec![self.room.as_str().to_string()]);
+            self.state.open(vec![self.room_name.as_str().to_string()]);
             StatefulWidget::render(tree, area, buf, &mut self.state);
         }
     }
