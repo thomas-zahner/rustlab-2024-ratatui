@@ -10,8 +10,8 @@ use crate::app::App;
 impl App {
     pub fn draw_ui(&mut self, frame: &mut Frame) {
         let [message_area, text_area, logger_area] = Layout::vertical([
-            Constraint::Percentage(100),
-            Constraint::Min(3),
+            Constraint::Fill(1),
+            Constraint::Max(3),
             Constraint::Percentage(40 * self.logger.is_some() as u16),
         ])
         .areas(frame.area());
