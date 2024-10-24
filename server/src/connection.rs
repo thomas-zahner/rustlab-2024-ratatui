@@ -120,11 +120,21 @@ impl Connection {
                             b!(sink.send(ServerEvent::Rooms(rooms_list.iter().map(|(v1, _)| v1.clone()).collect()).as_json_str()).await);
                         },
                         Ok(ServerCommand::Users) => {
-                            let users_list = self.rooms.list_users(&room_name).unwrap();
-                            b!(sink.send(ServerEvent::Users(users_list).as_json_str()).await);
+                            if let Some(users_list) = self.rooms.list_users(&room_name) {
+                                b!(sink.send(ServerEvent::Users(users_list).as_json_str()).await);
+                            }
                         },
                         Ok(ServerCommand::File(filename, contents)) => {
                             let _ = room_tx.send(ServerEvent::RoomEvent(self.username.clone(), RoomEvent::File(filename.clone(), contents.clone())));
+                        },
+                        Ok(ServerCommand::Nudge(username)) => {
+                            if let Some(users_list) = self.rooms.list_users(&room_name) {
+                                if users_list.contains(&username) {
+                                    let _ = room_tx.send(ServerEvent::RoomEvent(self.username.clone(), RoomEvent::Nudge(username)));
+                                } else {
+                                    b!(sink.send(ServerEvent::Error(format!("user not found")).as_json_str()).await);
+                                }
+                            }
                         },
                         Ok(ServerCommand::Quit) => {
                             break Ok(());

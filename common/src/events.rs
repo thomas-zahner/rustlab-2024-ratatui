@@ -18,6 +18,7 @@ pub enum RoomEvent {
     Joined(RoomName),
     Left(RoomName),
     NameChange(Username),
+    Nudge(Username),
 }
 
 impl ServerEvent {

@@ -21,7 +21,7 @@ impl Widget for &mut MessageList {
             .events
             .iter()
             .rev()
-            .filter_map(|event| self.server_event_line(&event))
+            .filter_map(|event| self.server_event_line(event))
             .map(ListItem::new)
             .collect::<Vec<_>>();
 
@@ -75,6 +75,11 @@ impl MessageList {
             RoomEvent::NameChange(name) => Some(Line::from(vec![
                 Span::from(username).cyan().bold(),
                 " is now known as ".into(),
+                Span::from(name).green().italic(),
+            ])),
+            RoomEvent::Nudge(name) => Some(Line::from(vec![
+                Span::from(username).cyan().bold(),
+                " nudged ".into(),
                 Span::from(name).green().italic(),
             ])),
             RoomEvent::File(file, _) => Some(Line::from(vec![

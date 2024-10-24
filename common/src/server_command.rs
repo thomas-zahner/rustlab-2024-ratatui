@@ -10,6 +10,7 @@ pub enum ServerCommand {
     Join(RoomName),
     Users,
     File(String, String),
+    Nudge(Username),
     Quit,
 }
 
@@ -22,6 +23,7 @@ impl fmt::Display for ServerCommand {
             ServerCommand::Join(room) => write!(f, "/join {}", room),
             ServerCommand::Users => write!(f, "/users"),
             ServerCommand::File(name, encoded) => write!(f, "/file {} {}", name, encoded),
+            ServerCommand::Nudge(name) => write!(f, "/nudge {}", name),
             ServerCommand::Quit => write!(f, "/quit"),
         }
     }
@@ -47,6 +49,10 @@ impl TryFrom<String> for ServerCommand {
                 let name = parts.next().ok_or("File name is required")?.to_string();
                 let encoded = parts.next().ok_or("File content is required")?.to_string();
                 Ok(ServerCommand::File(name, encoded))
+            }
+            Some("/nudge") => {
+                let name = parts.next().ok_or("Username is required")?.into();
+                Ok(ServerCommand::Nudge(name))
             }
             Some("/quit") => Ok(ServerCommand::Quit),
             _ => Err(format!("Invalid command: {}", value)),
