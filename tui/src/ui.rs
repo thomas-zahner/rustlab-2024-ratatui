@@ -1,20 +1,14 @@
 use ratatui::{
     layout::{Constraint, Layout},
     text::Line,
-    widgets::{Block, Clear},
+    widgets::Block,
     Frame,
 };
-use tachyonfx::{Duration, EffectRenderer};
 
 use crate::app::App;
 
 impl App {
     pub fn draw_ui(&mut self, frame: &mut Frame) {
-        if let Some(effect) = &mut self.effect {
-            frame.render_widget(Clear, frame.area());
-            frame.render_effect(effect, frame.area(), Duration::from_millis(10));
-        }
-
         let [message_area, text_area, logger_area] = Layout::vertical([
             Constraint::Fill(1),
             Constraint::Max(3),

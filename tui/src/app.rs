@@ -5,10 +5,7 @@ use base64::{prelude::BASE64_STANDARD, Engine};
 use common::{RoomEvent, ServerCommand, ServerEvent, Username};
 use crossterm::event::{Event as CrosstermEvent, EventStream};
 use futures::{SinkExt, StreamExt};
-use ratatui::{
-    style::{Color, Style},
-    DefaultTerminal,
-};
+use ratatui::{style::Style, DefaultTerminal};
 use ratatui_explorer::File;
 use tokio::{
     net::{tcp::OwnedWriteHalf, TcpStream},
@@ -20,10 +17,6 @@ use tui_textarea::{Input, Key, TextArea};
 use crate::popup::Popup;
 use crate::room_list::RoomList;
 use crate::{logger::Logger, message_list::MessageList};
-use tachyonfx::{
-    fx::{self, Direction as FxDirection},
-    Effect, EffectTimer, Interpolation, Shader,
-};
 
 pub struct App {
     addr: SocketAddr,
@@ -38,7 +31,6 @@ pub struct App {
     pub text_area: TextArea<'static>,
     pub logger: Option<Logger>,
     pub popup: Option<Popup>,
-    pub effect: Option<Effect>,
 }
 
 #[derive(Clone)]
@@ -47,6 +39,7 @@ pub enum Event {
     FileSelected(File),
     PopupClosed,
     LoggerClosed,
+    EffectRendered,
 }
 
 impl From<CrosstermEvent> for Event {
@@ -71,7 +64,6 @@ impl App {
             text_area: create_text_area(),
             logger: None,
             popup: None,
-            effect: None,
         }
     }
 
@@ -92,7 +84,6 @@ impl App {
                 },
                 Some(event) = self.event_receiver.recv() => self.handle_event(event).await?,
                 Some(tcp_event) = tcp_reader.next() => self.handle_server_event(tcp_event?).await?,
-                _ = async { self.effect.as_ref().map(|v|v.running()) } => {}
             }
         }
         Ok(())
@@ -131,6 +122,7 @@ impl App {
             Event::LoggerClosed => {
                 self.logger = None;
             }
+            Event::EffectRendered => {}
         }
 
         Ok(())
@@ -221,7 +213,7 @@ impl App {
             }
             RoomEvent::Nudge(username) => {
                 if username == self.message_list.username {
-                    self.effect = Some(create_effect());
+                    self.popup = Some(Popup::effect(self.event_sender.clone()));
                 }
             }
             RoomEvent::File(_name, _contents) => {}
@@ -234,17 +226,4 @@ fn create_text_area() -> TextArea<'static> {
     text_area.set_cursor_line_style(Style::default());
     text_area.set_placeholder_text("Start typing...");
     text_area
-}
-
-fn create_effect() -> Effect {
-    fx::sequence(&[
-        fx::ping_pong(fx::sweep_in(
-            FxDirection::LeftToRight,
-            10,
-            0,
-            Color::DarkGray,
-            EffectTimer::from_ms(2000, Interpolation::QuadIn),
-        )),
-        fx::coalesce((800, Interpolation::SineOut)),
-    ])
 }
