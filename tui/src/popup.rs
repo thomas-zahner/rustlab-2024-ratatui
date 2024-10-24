@@ -4,7 +4,7 @@ use base64::{prelude::BASE64_STANDARD, Engine};
 use crossterm::event::Event as CrosstermEvent;
 use ratatui::{
     buffer::Buffer,
-    layout::{Constraint, Flex, Layout, Rect},
+    layout::{Constraint, Flex, Layout, Offset, Rect},
     style::{Color, Modifier, Style, Stylize},
     widgets::{Block, BorderType, Clear, StatefulWidget, Widget},
 };
@@ -125,8 +125,9 @@ fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn Sta
 fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
     let popup_area = popup_area(area, 80, 80);
     Clear.render(popup_area, buf);
+    Block::bordered().render(popup_area, buf);
     let text = tui_markdown::from_str(contents);
-    text.render(popup_area, buf);
+    text.render(popup_area.offset(Offset { x: 1, y: 1 }), buf);
 }
 
 fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {

@@ -16,8 +16,8 @@
   - Markdown preview ([`tui-markdown`](https://github.com/joshka/tui-markdown))
   - Logging ([`tui-logger`](https://github.com/gin66/tui-logger))
   - Terminal effects
-
   - Searching
+
   - Vim-like editor ([`edtui`](https://github.com/preiter93/edtui))
   - Loading icon ([`throbber-widgets-tui`](https://github.com/arkbig/throbber-widgets-tui))
 
