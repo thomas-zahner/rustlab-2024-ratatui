@@ -4,33 +4,33 @@
 
 ## What will you build?
 
-- Project setup
-- Adding widgets
-
-  - Text input ([`tui-textarea`](https://github.com/rhysd/tui-textarea))
-  - List
-  - Tree widget ([`tui-tree-widget`](https://github.com/EdJoPaTo/tui-rs-tree-widget))
-  - Popups
-  - File explorer ([`ratatui-explorer`](https://github.com/tatounee/ratatui-explorer))
-  - Rendering images ([`ratatui-image`](https://crates.io/crates/ratatui-image))
-  - Markdown preview ([`tui-markdown`](https://github.com/joshka/tui-markdown))
-  - Logging ([`tui-logger`](https://github.com/gin66/tui-logger))
-  - Terminal effects ([`tachyonfx`](https://github.com/junkdog/tachyonfx))
-
-  - Vim-like editor ([`edtui`](https://github.com/preiter93/edtui))
-  - Loading icon ([`throbber-widgets-tui`](https://github.com/arkbig/throbber-widgets-tui))
-  - Searching
+A terminal chat application where you can send messages, files, and images.
 
 ### Goals
+
+### Steps
+
+1. Initialization
+2. Text input ([`tui-textarea`](https://github.com/rhysd/tui-textarea))
+3. List
+4. Scrollbar
+5. Tree widget ([`tui-tree-widget`](https://github.com/EdJoPaTo/tui-rs-tree-widget))
+6. Popups
+7. File explorer ([`ratatui-explorer`](https://github.com/tatounee/ratatui-explorer))
+8. Rendering images ([`ratatui-image`](https://crates.io/crates/ratatui-image))
+9. Markdown preview ([`tui-markdown`](https://github.com/joshka/tui-markdown))
+10. Terminal effects ([`tachyonfx`](https://github.com/junkdog/tachyonfx))
+11. Logging ([`tui-logger`](https://github.com/gin66/tui-logger))
+12. Theming
+13. Testing
 
 ## Getting Started
 
 ### Prerequisites
 
-### Agenda
-
 ## References
 
+- https://github.com/pretzelhammer/chat-server
 - [Ratatui documentation](https://ratatui.rs/)
 
 ## License
