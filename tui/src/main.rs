@@ -31,6 +31,15 @@ pub struct Args {
     port: u16,
 }
 
+impl Default for Args {
+    fn default() -> Self {
+        Self {
+            ip: DEFAULT_IP,
+            port: DEFAULT_PORT,
+        }
+    }
+}
+
 impl Args {
     pub fn parse_socket_addr() -> SocketAddr {
         let cli = Self::parse();
@@ -62,4 +71,22 @@ async fn main() -> anyhow::Result<()> {
     let result = app.run(terminal).await;
     ratatui::restore();
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use insta::assert_snapshot;
+    use ratatui::{backend::TestBackend, Terminal};
+
+    #[tokio::test]
+    async fn test_render_app() -> anyhow::Result<()> {
+        let addr = Args::default();
+        let addr = SocketAddr::new(addr.ip, addr.port);
+        let mut app = App::new(addr);
+        let mut terminal = Terminal::new(TestBackend::new(80, 20)).unwrap();
+        terminal.draw(|frame| app.draw_ui(frame))?;
+        assert_snapshot!(terminal.backend());
+        Ok(())
+    }
 }

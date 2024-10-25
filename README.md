@@ -21,8 +21,8 @@ A terminal chat application where you can send messages, files, and images.
 9. Markdown preview ([`tui-markdown`](https://github.com/joshka/tui-markdown))
 10. Terminal effects ([`tachyonfx`](https://github.com/junkdog/tachyonfx))
 11. Logging ([`tui-logger`](https://github.com/gin66/tui-logger))
-12. Theming
-13. Testing
+12. Testing
+13. Customizations
 
 ## Getting Started
 
