@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use anyhow::Ok;
 use base64::{prelude::BASE64_STANDARD, Engine};
-use common::{RoomEvent, RoomName, ServerCommand, ServerEvent, Username};
+use common::{Command, RoomEvent, RoomName, ServerEvent, Username};
 use crossterm::event::{Event as CrosstermEvent, EventStream};
 use futures::{SinkExt, StreamExt};
 use ratatui::{style::Style, DefaultTerminal};
@@ -89,7 +89,7 @@ impl App {
         Ok(())
     }
 
-    pub async fn send(&mut self, command: ServerCommand) {
+    pub async fn send(&mut self, command: Command) {
         let framed = self.tcp_writer.as_mut().unwrap();
         let _ = framed.send(command.to_string()).await;
     }
@@ -113,7 +113,7 @@ impl App {
                 self.popup = None;
                 let contents = tokio::fs::read(file.path()).await?;
                 let base64 = BASE64_STANDARD.encode(contents);
-                let command = ServerCommand::SendFile(file.name().to_string(), base64);
+                let command = Command::SendFile(file.name().to_string(), base64);
                 self.send(command).await;
             }
             Event::PopupClosed => {
@@ -225,14 +225,14 @@ impl App {
             RoomEvent::Joined(room) | RoomEvent::Left(room) => {
                 self.message_list.room_name = room.clone();
                 self.room_list.room_name = room;
-                self.send(ServerCommand::ListUsers).await;
-                self.send(ServerCommand::ListRooms).await;
+                self.send(Command::ListUsers).await;
+                self.send(Command::ListRooms).await;
             }
             RoomEvent::NameChange(new_username) => {
                 if username == self.message_list.username {
                     self.message_list.username = new_username;
                 } else {
-                    self.send(ServerCommand::ListUsers).await;
+                    self.send(Command::ListUsers).await;
                 }
             }
             RoomEvent::Nudge(username) => {

@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 
 use anyhow::Context;
-use common::{RoomEvent, RoomName, ServerCommand, ServerEvent, Username};
+use common::{Command, RoomEvent, RoomName, ServerEvent, Username};
 use futures::SinkExt;
 use tokio::{net::TcpStream, sync::broadcast::Receiver};
 use tokio_stream::StreamExt;
@@ -120,7 +120,7 @@ impl Connection {
             self.room.send_message(&self.username, &message);
             return;
         }
-        match ServerCommand::try_from(message) {
+        match Command::try_from(message) {
             Ok(command) => {
                 self.log_command(&command);
                 self.handle_command(command).await
@@ -133,8 +133,8 @@ impl Connection {
         }
     }
 
-    fn log_command(&self, command: &ServerCommand) {
-        if let ServerCommand::SendFile(filename, contents) = &command {
+    fn log_command(&self, command: &Command) {
+        if let Command::SendFile(filename, contents) = &command {
             tracing::info!("Received file: {filename}");
             tracing::trace!("Received file contents: {contents}");
         } else {
@@ -142,13 +142,13 @@ impl Connection {
         }
     }
 
-    async fn handle_command(&mut self, command: ServerCommand) {
+    async fn handle_command(&mut self, command: Command) {
         match command {
-            ServerCommand::Help => {
+            Command::Help => {
                 let help = ServerEvent::help(&self.username, COMMANDS);
                 self.send_event(help).await;
             }
-            ServerCommand::ChangeUsername(new_name) => {
+            Command::ChangeUsername(new_name) => {
                 let changed_name = self.users.insert(&new_name);
                 if changed_name {
                     self.room.change_user_name(&self.username, &new_name);
@@ -158,25 +158,25 @@ impl Connection {
                     self.send_event(ServerEvent::error(&message)).await;
                 }
             }
-            ServerCommand::Join(new_room) => {
+            Command::Join(new_room) => {
                 (self.room, self.room_events) =
                     self.rooms.change(&self.username, &self.room, &new_room);
                 let users = self.room.list_users();
                 self.send_event(ServerEvent::users(users)).await;
             }
-            ServerCommand::ListRooms => {
+            Command::ListRooms => {
                 let rooms_list = self.rooms.list();
                 self.send_event(ServerEvent::rooms(rooms_list)).await;
             }
-            ServerCommand::ListUsers => {
+            Command::ListUsers => {
                 let users = self.room.list_users();
                 self.send_event(ServerEvent::users(users)).await;
             }
-            ServerCommand::SendFile(filename, contents) => {
+            Command::SendFile(filename, contents) => {
                 self.room
                     .send_event(&self.username, RoomEvent::file(&filename, &contents));
             }
-            ServerCommand::Nudge(username) => {
+            Command::Nudge(username) => {
                 let users = self.room.list_users();
                 if users.contains(&username) {
                     let nudge = RoomEvent::Nudge(username);
@@ -185,7 +185,7 @@ impl Connection {
                     self.send_event(ServerEvent::error("user not found")).await;
                 }
             }
-            ServerCommand::Quit => {
+            Command::Quit => {
                 self.room.leave(&self.username);
                 self.send_event(ServerEvent::Disconnect).await;
                 self.state = ConnectionState::Disconnected;
