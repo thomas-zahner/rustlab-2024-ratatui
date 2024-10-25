@@ -6,8 +6,16 @@ use serde::{Deserialize, Serialize};
 pub struct RoomName(String);
 
 impl RoomName {
+    pub fn new(name: String) -> Self {
+        Self(name)
+    }
+
     pub fn as_str(&self) -> &str {
         &self.0
+    }
+
+    pub fn lobby() -> Self {
+        Self("lobby".to_string())
     }
 }
 
