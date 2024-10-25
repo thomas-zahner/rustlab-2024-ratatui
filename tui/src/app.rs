@@ -130,7 +130,9 @@ impl App {
 
     async fn handle_key_input(&mut self, input: Input) -> anyhow::Result<(), anyhow::Error> {
         match (input.ctrl, input.key) {
-            (_, Key::Esc) => self.is_running = false,
+            (_, Key::Esc) => {
+                self.send(Command::Quit).await;
+            }
             (_, Key::Enter) => self.send_message().await?,
             (_, Key::Down) => self.message_list.state.select_previous(),
             (_, Key::Up) => self.message_list.state.select_next(),
