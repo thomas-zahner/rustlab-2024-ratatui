@@ -6,7 +6,7 @@ use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Flex, Layout, Offset, Rect},
     style::{Color, Modifier, Style, Stylize},
-    widgets::{Block, BorderType, Clear, StatefulWidget, Widget},
+    widgets::{Block, BorderType, Clear, Paragraph, StatefulWidget, Widget, Wrap},
 };
 use ratatui_explorer::{FileExplorer, Theme};
 use ratatui_image::{picker::Picker, protocol::StatefulProtocol, StatefulImage};
@@ -20,6 +20,7 @@ use tui_textarea::{Input, Key};
 use crate::app::Event;
 
 pub enum Popup {
+    Help(String, UnboundedSender<Event>),
     FileExplorer(FileExplorer, UnboundedSender<Event>),
     ImagePreview(Box<dyn StatefulProtocol>, UnboundedSender<Event>),
     MarkdownPreview(String, UnboundedSender<Event>),
@@ -27,6 +28,10 @@ pub enum Popup {
 }
 
 impl Popup {
+    pub fn help(key_bindings: String, event_sender: UnboundedSender<Event>) -> Self {
+        Self::Help(key_bindings, event_sender)
+    }
+
     pub fn file_explorer(event_sender: UnboundedSender<Event>) -> io::Result<Self> {
         let theme = Theme::default()
             .add_default_title()
@@ -95,6 +100,9 @@ impl Popup {
         raw_event: CrosstermEvent,
     ) -> anyhow::Result<()> {
         match self {
+            Popup::Help(_, ref event_sender) if input.key == Key::Esc => {
+                let _ = event_sender.send(Event::PopupClosed);
+            }
             Popup::FileExplorer(ref mut explorer, ref mut event_sender) => match input.key {
                 Key::Esc => {
                     let _ = event_sender.send(Event::PopupClosed);
@@ -125,6 +133,7 @@ impl Popup {
 impl Widget for &mut Popup {
     fn render(self, area: Rect, buf: &mut Buffer) {
         match self {
+            Popup::Help(ref key_bindings, ..) => render_help(key_bindings, area, buf),
             Popup::FileExplorer(explorer, _) => render_explorer(area, buf, explorer),
             Popup::ImagePreview(ref mut protocol, _) => render_image_preview(area, buf, protocol),
             Popup::MarkdownPreview(contents, _) => {
@@ -140,6 +149,19 @@ impl Widget for &mut Popup {
             }
         }
     }
+}
+
+fn render_help(key_bindings: &str, area: Rect, buf: &mut Buffer) {
+    let popup_area = popup_area(area, 30, 30);
+    Clear.render(popup_area, buf);
+    Paragraph::new(key_bindings.trim())
+        .wrap(Wrap { trim: false })
+        .block(
+            Block::bordered()
+                .title("Help")
+                .title_style(Style::new().bold()),
+        )
+        .render(popup_area, buf);
 }
 
 fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {

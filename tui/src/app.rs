@@ -18,6 +18,17 @@ use crate::popup::Popup;
 use crate::room_list::RoomList;
 use crate::{logger::Logger, message_list::MessageList};
 
+const KEY_BINDINGS: &str = r#"
+- [Ctrl + h] Help
+- [Enter] Send message
+- [Ctrl + e] File explorer
+    - [Enter] Select file
+    - [Right/Left] Navigate directories
+- [Ctrl + p] Preview file
+- [Ctrl + l] Show logger
+- [Esc] Quit
+"#;
+
 pub struct App {
     addr: SocketAddr,
     term_stream: EventStream,
@@ -136,6 +147,7 @@ impl App {
             (_, Key::Enter) => self.send_message().await?,
             (_, Key::Down) => self.message_list.state.select_previous(),
             (_, Key::Up) => self.message_list.state.select_next(),
+            (true, Key::Char('h')) => self.show_help(),
             (true, Key::Char('e')) => self.show_file_explorer()?,
             (true, Key::Char('p')) => self.preview_file()?,
             (true, Key::Char('l')) => self.show_logger(),
@@ -156,6 +168,11 @@ impl App {
             self.text_area.delete_line_by_end();
         }
         Ok(())
+    }
+
+    fn show_help(&mut self) {
+        let popup = Popup::help(KEY_BINDINGS.to_string(), self.event_sender.clone());
+        self.popup = Some(popup);
     }
 
     fn show_file_explorer(&mut self) -> Result<(), anyhow::Error> {
