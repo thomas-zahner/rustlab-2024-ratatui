@@ -9,11 +9,7 @@ use ratatui::{
     widgets::{Block, BorderType, Clear, StatefulWidget, Widget},
 };
 use ratatui_explorer::{FileExplorer, Theme};
-use ratatui_image::{
-    picker::{Picker, ProtocolType},
-    protocol::StatefulProtocol,
-    StatefulImage,
-};
+use ratatui_image::{picker::Picker, protocol::StatefulProtocol, StatefulImage};
 use tachyonfx::{
     fx::{self, Direction as FxDirection},
     Duration, Effect, EffectRenderer, EffectTimer, Interpolation, Shader,
@@ -51,9 +47,8 @@ impl Popup {
         let data = BASE64_STANDARD.decode(contents.as_bytes())?;
         let img = image::load_from_memory(&data)?;
         let user_fontsize = (7, 14);
-        let user_protocol = ProtocolType::Halfblocks;
         let mut picker = Picker::new(user_fontsize);
-        picker.protocol_type = user_protocol;
+        picker.guess_protocol();
         let image = picker.new_resize_protocol(img);
         Ok(Popup::ImagePreview(image, event_sender))
     }
@@ -155,16 +150,18 @@ fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {
 
 fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn StatefulProtocol>) {
     let popup_area = popup_area(area, 80, 80);
-    Clear.render(popup_area, buf);
     let image = StatefulImage::new(None);
     image.render(popup_area, buf, protocol);
 }
 
 fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
-    let popup_area = popup_area(area, 80, 80);
+    let text = tui_markdown::from_str(contents);
+    let mut popup_area = popup_area(area, 80, 80);
+    if let (Ok(width), Ok(height)) = (u16::try_from(text.width()), u16::try_from(text.height())) {
+        popup_area = popup_area.clamp(Rect::new(popup_area.x, popup_area.y, width + 2, height + 2));
+    }
     Clear.render(popup_area, buf);
     Block::bordered().render(popup_area, buf);
-    let text = tui_markdown::from_str(contents);
     text.render(popup_area.offset(Offset { x: 1, y: 1 }), buf);
 }
 
