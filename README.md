@@ -1,14 +1,22 @@
-# Cooking up with TUIs with Ratatui 👨‍🍳🐀
+# Ratatui Workshop 👨‍🍳🐀
 
-**Session**: <https://rustlab.it/talks/cooking-up-with-tuis-with-ratatui>
+This workshop is prepared for ["Cooking up with TUIs with Ratatui"](https://rustlab.it/talks/cooking-up-with-tuis-with-ratatui) session at [RustLab 2024](https://rustlab.it).
+
+You can also follow this guide individually and complete the walkthrough. See [Getting Started](#getting-started).
 
 ## What will you build?
 
-A terminal chat application where you can send messages, files, and images.
+A terminal chat application that supports sending messages, files, and images.
+
+![demo](./assets/demo.gif)
 
 ### Goals
 
-### Steps
+- Get familiar with the fundamentals of [Ratatui](https://ratatui.rs).
+- Learn how to incorporate widgets and structure your application.
+- Understand the best practices of building TUI applications in Rust.
+
+### Chapters
 
 1. Initialization
 2. Text input ([`tui-textarea`](https://github.com/rhysd/tui-textarea))
@@ -24,13 +32,83 @@ A terminal chat application where you can send messages, files, and images.
 12. Testing ([`insta`](https://github.com/mitsuhiko/insta))
 13. Customizations
 
+### Architecture
+
+```mermaid
+graph TD
+    Server -->|TCP| Client
+    Client -->|TCP| Server
+
+    subgraph Architecture
+        direction TB
+        Server[Server]
+        Client[Client / TUI]
+    end
+```
+
+```mermaid
+sequenceDiagram
+    participant Client as Client
+    participant Server as Server
+
+    Client->>Server: Connect via TCP (127.0.0.1:42069)
+    Server-->>Client: CommandHelp
+    Server-->>Client: Rooms: [lobby]
+    Server-->>Client: Users: [foo, bar]
+    Server-->>Client: RoomEvent: Joined
+
+    Client->>Server: Send message
+    Server-->>Client: RoomEvent: Message
+
+    Client->>Server: Send message ("/join room")
+    Server-->>Client: Users: [baz]
+    Server-->>Client: RoomEvent: Joined
+    Server-->>Client: RoomCreated
+
+    Client->>Server: Send message ("/quit")
+    Server-->>Client: Disconnect
+```
+
 ## Getting Started
 
 ### Prerequisites
 
+1. [Rust](https://www.rust-lang.org/tools/install) (make sure you have the latest stable version installed).
+
+2. A code editor with [`rust-analyzer`](https://rust-analyzer.github.io/) plugin (or anything at your preference).
+
+3. A performant terminal with image rendering support (is good to have). We recommend [`wezterm`](https://wezfurlong.org/wezterm/).
+
+### Setup
+
+Simply start by cloning this repository:
+
+```sh
+git clone https://github.com/orhun/rustlab2024
+```
+
+The repository contains a [cargo workspace](https://doc.rust-lang.org/cargo/reference/workspaces.html) with the following crates:
+
+- `server`: A TCP server that handles the communication between clients.
+- `common`: Shared types (e.g. commands, events) for the server and client.
+
+Your job is to implement the terminal client for this chat application using Ratatui!
+
+### Start cooking!
+
+TODO
+
 ## References
 
-- https://github.com/pretzelhammer/chat-server
 - [Ratatui documentation](https://ratatui.rs/)
+- [Rust documentation](https://doc.rust-lang.org/std/)
+
+The client/server architecture is inspired by @pretzelhammer's [chat server](https://github.com/pretzelhammer/chat-server) project.
 
 ## License
+
+Copyright © 2024, [Orhun Parmaksız](mailto:orhunparmaksiz@gmail.com)
+
+Licensed under either [The MIT License](./LICENSE)
+
+🦀 ノ( º \_ º ノ) - respect crables!
