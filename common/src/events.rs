@@ -11,6 +11,7 @@ pub enum ServerEvent {
     RoomEvent {
         room_name: RoomName,
         username: Username,
+        date: String,
         event: RoomEvent,
     },
     #[strum(to_string = "Room Created({0})")]
@@ -49,6 +50,7 @@ impl ServerEvent {
             room_name: room_name.clone(),
             username: username.clone(),
             event,
+            date: chrono::Local::now().format("%H:%M:%S").to_string(),
         }
     }
 

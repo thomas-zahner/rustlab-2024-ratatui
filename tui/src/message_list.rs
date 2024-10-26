@@ -49,14 +49,20 @@ impl MessageList {
             ServerEvent::RoomEvent {
                 room_name: _,
                 username,
+                date,
                 event,
-            } => self.room_event_line(username.clone(), event),
+            } => self.room_event_line(username.clone(), date, event),
             ServerEvent::Error(error) => Some(Line::from(format!("Error: {error}")).red()),
             _ => None,
         }
     }
 
-    fn room_event_line<'a>(&self, username: Username, event: &'a RoomEvent) -> Option<Line<'a>> {
+    fn room_event_line<'a>(
+        &self,
+        username: Username,
+        date: &'a str,
+        event: &'a RoomEvent,
+    ) -> Option<Line<'a>> {
         match event {
             RoomEvent::Message(message) => {
                 let color = if username == self.username {
@@ -65,27 +71,41 @@ impl MessageList {
                     Color::Cyan
                 };
                 Some(Line::from_iter([
+                    date.italic(),
+                    " | ".into(),
                     Span::from(username).style(color),
-                    ": ".white(),
+                    ": ".into(),
                     message.into(),
                 ]))
             }
-            RoomEvent::Joined(room) => {
-                Some(Line::from(format!("{username} joined {room}")).italic())
-            }
-            RoomEvent::Left(room) => Some(Line::from(format!("{username} left {room}")).italic()),
+            RoomEvent::Joined(room) => Some(Line::from(vec![
+                date.italic(),
+                " | ".into(),
+                format!("{username} joined {room}").italic(),
+            ])),
+            RoomEvent::Left(room) => Some(Line::from(vec![
+                date.italic(),
+                " | ".into(),
+                format!("{username} left {room}").italic(),
+            ])),
             RoomEvent::NameChange(name) => Some(Line::from(vec![
-                Span::from(username).cyan().bold(),
+                date.italic(),
+                " | ".into(),
+                Span::from(username).cyan(),
                 " is now known as ".into(),
                 Span::from(name).green().italic(),
             ])),
             RoomEvent::Nudge(name) => Some(Line::from(vec![
-                Span::from(username).cyan().bold(),
+                date.italic(),
+                " | ".into(),
+                Span::from(username).cyan(),
                 " nudged ".into(),
                 Span::from(name).green().italic(),
             ])),
             RoomEvent::File { filename, .. } => Some(Line::from(vec![
-                Span::from(username).cyan().bold(),
+                date.italic(),
+                " | ".into(),
+                Span::from(username).cyan(),
                 " sent a file: ".into(),
                 Span::from(filename).red().magenta(),
             ])),

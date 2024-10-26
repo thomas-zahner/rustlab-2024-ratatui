@@ -196,6 +196,7 @@ impl App {
                 room_name,
                 username,
                 event,
+                ..
             } => self.handle_room_event(room_name, username, event).await,
             ServerEvent::Error(_error) => {}
             ServerEvent::Rooms(rooms) => {
