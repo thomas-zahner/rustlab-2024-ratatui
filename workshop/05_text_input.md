@@ -276,3 +276,11 @@ And the rest is simply rendering the widgets in their respective areas.
 ---
 
 If you run the TUI now, you should be able to send messages to the server and chat with other users! 🚀
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./06_room_list.md) to add the room list. ➡️
+
+</div>

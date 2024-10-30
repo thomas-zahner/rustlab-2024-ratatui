@@ -252,3 +252,9 @@ impl MessageList {
 </details>
 
 ---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./12_logging.md) to add logging. ➡️
+
+</div>

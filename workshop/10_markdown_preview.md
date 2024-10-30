@@ -189,3 +189,11 @@ fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
 ---
 
 That's it! You should now be able to preview markdown files that are sent to the chat. 🔥
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./11_effects.md) to add cool terminal effects. ➡️
+
+</div>

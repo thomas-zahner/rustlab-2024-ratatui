@@ -88,3 +88,11 @@ sequenceDiagram
     Client->>Server: Send message ("/quit")
     Server-->>Client: Disconnect
 ```
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./01_init.md) to get started with the project. ➡️
+
+</div>

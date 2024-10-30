@@ -182,3 +182,11 @@ A couple of points to note about this implementation:
 ```
 
 Now every time you run the TUI, it will connect to the server and read/write events. 🎉
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./04_message_list.md) to add the message list. ➡️
+
+</div>

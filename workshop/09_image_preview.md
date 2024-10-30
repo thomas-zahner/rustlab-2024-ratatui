@@ -298,3 +298,11 @@ fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn Sta
 ---
 
 When you run the TUI and press `Ctrl-p` on an image message, you should see the preview of the image! 🖼️
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./10_markdown_preview.md) to add markdown preview. ➡️
+
+</div>

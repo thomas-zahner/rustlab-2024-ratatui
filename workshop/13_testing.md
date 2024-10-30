@@ -95,3 +95,11 @@ mod tests {
 When you run `cargo test`, the test will fail and it will generate a snapshot file in `src/snapshots`. You can _approve_ the snapshot by running `cargo insta review`.
 
 Congratulations! You now have galaxy level tests 🛡️
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./14_end.md) to wrap up the workshop. ➡️
+
+</div>

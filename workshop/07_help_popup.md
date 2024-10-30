@@ -455,3 +455,11 @@ Don't forget to render in `src/ui.rs`!
 ```
 
 Now you should be able to see the help popup when you press `Ctrl-h` in the TUI!
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./08_file_explorer.md) to add file explorer. ➡️
+
+</div>

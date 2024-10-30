@@ -378,3 +378,11 @@ use crate::app::App;
 ---
 
 Run your TUI and press `Ctrl-l` to see the logger pane at the bottom of the screen now! 🎉
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./13_testing.md) to add tests to your application. ➡️
+
+</div>

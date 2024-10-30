@@ -327,3 +327,11 @@ impl App {
 You can see that we are matching on specific server events and updating the `message_list` state accordingly. For example, when we receive a `RoomEvent` with a `Joined` or `Left` event, we update the `room_name` field. Or similarly, when we receive a `CommandHelp` event, we update the `username` field.
 
 In the next chapters, we will be implementing the rest of these events :) But for now, if you run the TUI application, you should see the server messages displayed in the list widget.
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./05_text_input.md) to add the text input. ➡️
+
+</div>

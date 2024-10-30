@@ -41,3 +41,11 @@ cargo run -p tui
 If everything goes right, you should see the output `Hello, world!` in the terminal. Voila! You have just created a Rust project.
 
 But don't get too excited, we have a long way to go.
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./02_tui.md) to initialize TUI with Ratatui. ➡️
+
+</div>

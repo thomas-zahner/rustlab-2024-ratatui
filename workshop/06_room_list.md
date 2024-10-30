@@ -232,3 +232,11 @@ We are splitting the `message_area` into two areas and `room_area` will take 20%
 ---
 
 Now, when you run the TUI, you should see the list of rooms on the right side of the window. You can switch between rooms by typing `/join <room_name>` in the text area. 🔥
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./07_help_popup.md) to add the help popup. ➡️
+
+</div>

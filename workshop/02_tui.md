@@ -117,3 +117,11 @@ In this chapter we created an `App` struct which is responsible for:
 We will build upon the `App` struct in the next chapters so it is the central part of our application.
 
 When you run the application (`cargo run`), you should see the Ratatui window with the text "Hello Ratatui!" in the center. You can exit the application by pressing the `Esc` key.
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./03_connection.md) to handle TCP connections. ➡️
+
+</div>

@@ -366,3 +366,11 @@ Event::FileSelected(file) => {
 ---
 
 Now you can run the TUI and send files to the server! 📁
+
+---
+
+<div style="text-align: right">
+
+Continue to the [next chapter](./09_image_preview.md) to render images in the terminal. ➡️
+
+</div>
