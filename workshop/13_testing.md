@@ -54,7 +54,19 @@ cargo add insta --dev
 cargo install cargo-insta # install the CLI tool
 ```
 
-Next, we can add a simple test case to `src/main.rs`:
+---
+
+🎯 **Task**: Write a simple test case.
+
+Tips:
+
+- See the following documentation:
+  - [Rust unit testing](https://doc.rust-lang.org/rust-by-example/testing/unit_testing.html)
+  - [Ratatui backend method for retrieving te buffer](https://docs.rs/ratatui/latest/ratatui/struct.Terminal.html#method.backend)
+  - [insta's assert_snapshot](https://docs.rs/insta/latest/insta/macro.assert_snapshot.html)
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```rust
 #[cfg(test)]
@@ -76,6 +88,10 @@ mod tests {
 }
 ```
 
+</details>
+
+---
+
 When you run `cargo test`, the test will fail and it will generate a snapshot file in `src/snapshots`. You can _approve_ the snapshot by running `cargo insta review`.
 
-Go ahead, try adding more tests!
+Congratulations! You now have galaxy level tests 🛡️

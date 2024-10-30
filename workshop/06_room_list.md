@@ -48,7 +48,22 @@ impl RoomList {
 
 Here, we are using the `TreeState` to keep track of the tree view's state. We also have `rooms` and `users` vectors to store the room names and users respectively. The `room_name` field is used to highlight the current room. We also have some helper methods to push and remove rooms from the list.
 
-Next, let's implement the `Widget` trait for `RoomList`:
+---
+
+🎯 **Task**: Implement the `Widget` trait for `RoomList`.
+
+```rust
+impl Widget for &mut RoomList {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        // ...
+    }
+}
+```
+
+Tip: See the API of the [`tui-tree-widget`](https://docs.rs/tui-tree-widget/) crate.
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```rust
 impl Widget for &mut RoomList {
@@ -83,9 +98,13 @@ impl Widget for &mut RoomList {
 }
 ```
 
-We created the _leaves_ and the tree view from the `rooms` and `users` vectors respectively. We also set the current room as open and render the tree view. See the API of the [`tui-tree-widget`](https://docs.rs/tui-tree-widget/) crate for more information.
+We created the _leaves_ and the tree view from the `rooms` and `users` vectors respectively. We also set the current room as open and render the tree view.
 
 Did you realize that we used `StatefulWidget` here? This is because the `Tree` widget needs to keep track of its state to handle the tree view's expansion and collapse. We are not going to use those features in this chapter, but this is how we implement "stateful" widgets. It will come important later :)
+
+</details>
+
+---
 
 ## Using the Widget
 
@@ -185,7 +204,14 @@ Going through the changes:
 
 ## Rendering the Widget
 
-Rendering the `RoomList` widget is as simple as adding a new constraint and calling `render_widget` in the `draw_ui` method (in `src/ui.rs`):
+---
+
+🎯 **Task**: Render the `RoomList` widget in the UI.
+
+Tip: Add a new constraint and then call `render_widget` on `self.room_list` in the `draw_ui` method (in `src/ui.rs`):
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```diff
          frame.render_widget(&self.text_area, text_area);
@@ -200,5 +226,9 @@ Rendering the `RoomList` widget is as simple as adding a new constraint and call
 ```
 
 We are splitting the `message_area` into two areas and `room_area` will take 20% of the width.
+
+</details>
+
+---
 
 Now, when you run the TUI, you should see the list of rooms on the right side of the window. You can switch between rooms by typing `/join <room_name>` in the text area. 🔥

@@ -54,7 +54,9 @@ git clone https://github.com/orhun/rustlab2024
 
 Your job is to implement a terminal client for a chat application using Ratatui!
 
-Start the workshop by [clicking here!](./workshop/00_intro.md) ➡️
+[Click here to start the workshop](./workshop/00_intro.md)! ➡️
+
+Start reading through the chapters and sometimes you will be asked to implement some parts of the application. Don't worry, the solutions are also provided! :)
 
 ## References
 

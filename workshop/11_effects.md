@@ -39,28 +39,7 @@ In `src/popup.rs`:
      }
 
 +    pub fn effect(event_sender: UnboundedSender<Event>) -> Self {
-+        let effect = fx::sequence(&[
-+            fx::ping_pong(fx::sweep_in(
-+                FxDirection::DownToUp,
-+                10,
-+                0,
-+                Color::DarkGray,
-+                EffectTimer::from_ms(3000, Interpolation::QuadIn),
-+            )),
-+            fx::hsl_shift_fg([360.0, 0.0, 0.0], 750),
-+            fx::hsl_shift_fg([0.0, -100.0, 0.0], 750),
-+            fx::hsl_shift_fg([0.0, -100.0, 0.0], 750).reversed(),
-+            fx::hsl_shift_fg([0.0, 100.0, 0.0], 750),
-+            fx::hsl_shift_fg([0.0, 100.0, 0.0], 750).reversed(),
-+            fx::hsl_shift_fg([0.0, 0.0, -100.0], 750),
-+            fx::hsl_shift_fg([0.0, 0.0, -100.0], 750).reversed(),
-+            fx::hsl_shift_fg([0.0, 0.0, 100.0], 750),
-+            fx::hsl_shift_fg([0.0, 0.0, 100.0], 750).reversed(),
-+            fx::dissolve((800, Interpolation::SineOut)),
-+            fx::coalesce((800, Interpolation::SineOut)),
-+        ]);
-+
-+        Popup::Effect(effect, event_sender)
++      // TODO
 +    }
 +
      pub async fn handle_input(
@@ -71,12 +50,7 @@ In `src/popup.rs`:
                  render_markdown_preview(area, buf, contents);
              }
 +            Popup::Effect(effect, event_sender) => {
-+                if effect.running() {
-+                    render_effect(area, buf, effect);
-+                    let _ = event_sender.send(Event::EffectRendered);
-+                } else {
-+                    let _ = event_sender.send(Event::PopupClosed);
-+                }
++              // TODO
 +            }
          }
      }
@@ -86,8 +60,7 @@ In `src/popup.rs`:
  }
 
 +fn render_effect(area: Rect, buf: &mut Buffer, effect: &mut Effect) {
-+    let popup_area = popup_area(area, 100, 100);
-+    buf.render_effect(effect, popup_area, Duration::from_millis(10));
++  // TODO
 +}
 +
  fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {
@@ -95,32 +68,96 @@ In `src/popup.rs`:
      let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
 ```
 
-Here we added a new variant to the `Popup` enum called `Effect` (which contains the effect) and we are no longer using the `Clear` widget to clear the area. But the most important part is this:
+Here we added a new variant to the `Popup` enum called `Effect` (which contains the effect) and we are no longer using the `Clear` widget to clear the area.
+
+But, most importantly:
+
+---
+
+🎯 **Task**: Construct an effect.
+
+```
+impl Popup {
+    // ...
+    pub fn effect(event_sender: UnboundedSender<Event>) -> Self {
+      // ...
+    }
+}
+```
+
+Tip: Create an effect composition using [`tachyonfx`](https://docs.rs/tachyonfx). See the [minimal example](https://github.com/rhysd/tui-textarea/blob/main/examples/minimal.rs) in the repository for reference.
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```rust
-let effect = fx::sequence(&[
-    fx::ping_pong(fx::sweep_in(
-        FxDirection::DownToUp,
-        10,
-        0,
-        Color::DarkGray,
-        EffectTimer::from_ms(3000, Interpolation::QuadIn),
-    )),
-    fx::hsl_shift_fg([360.0, 0.0, 0.0], 750),
-    fx::hsl_shift_fg([0.0, -100.0, 0.0], 750),
-    fx::hsl_shift_fg([0.0, -100.0, 0.0], 750).reversed(),
-    fx::hsl_shift_fg([0.0, 100.0, 0.0], 750),
-    fx::hsl_shift_fg([0.0, 100.0, 0.0], 750).reversed(),
-    fx::hsl_shift_fg([0.0, 0.0, -100.0], 750),
-    fx::hsl_shift_fg([0.0, 0.0, -100.0], 750).reversed(),
-    fx::hsl_shift_fg([0.0, 0.0, 100.0], 750),
-    fx::hsl_shift_fg([0.0, 0.0, 100.0], 750).reversed(),
-    fx::dissolve((800, Interpolation::SineOut)),
-    fx::coalesce((800, Interpolation::SineOut)),
-]);
+pub fn effect(event_sender: UnboundedSender<Event>) -> Self {
+    let effect = fx::sequence(&[
+        fx::ping_pong(fx::sweep_in(
+            FxDirection::DownToUp,
+            10,
+            0,
+            Color::DarkGray,
+            EffectTimer::from_ms(3000, Interpolation::QuadIn),
+        )),
+        fx::hsl_shift_fg([360.0, 0.0, 0.0], 750),
+        fx::hsl_shift_fg([0.0, -100.0, 0.0], 750),
+        fx::hsl_shift_fg([0.0, -100.0, 0.0], 750).reversed(),
+        fx::hsl_shift_fg([0.0, 100.0, 0.0], 750),
+        fx::hsl_shift_fg([0.0, 100.0, 0.0], 750).reversed(),
+        fx::hsl_shift_fg([0.0, 0.0, -100.0], 750),
+        fx::hsl_shift_fg([0.0, 0.0, -100.0], 750).reversed(),
+        fx::hsl_shift_fg([0.0, 0.0, 100.0], 750),
+        fx::hsl_shift_fg([0.0, 0.0, 100.0], 750).reversed(),
+        fx::dissolve((800, Interpolation::SineOut)),
+        fx::coalesce((800, Interpolation::SineOut)),
+    ]);
+    Popup::Effect(effect, event_sender)
+}
 ```
 
 That's `tachyonfx` doing its magic and constructing an effect to apply to the buffer. You can take a look at the [examples](https://github.com/junkdog/tachyonfx/tree/development/examples) to come up with your own composition of effects.
+
+</details>
+
+---
+
+---
+
+🎯 **Task**: Render the effect popup.
+
+Tips:
+
+- In the `Widget` implementation of `Popup`, add a match arm for `Popup::Effect` and render the effect.
+- You need to send `Event::EffectRendered` when the effect is running (i.e. `effect.running()`) and `Event::PopupClosed` when it is done.
+- Also complete the `render_effect` function, similarly to the other popups.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+Popup::Effect(effect, event_sender) => {
+    if effect.running() {
+        render_effect(area, buf, effect);
+        let _ = event_sender.send(Event::EffectRendered);
+    } else {
+        let _ = event_sender.send(Event::PopupClosed);
+    }
+}
+```
+
+And in the `render_effect` function:
+
+```rust
+fn render_effect(area: Rect, buf: &mut Buffer, effect: &mut Effect) {
+    let popup_area = popup_area(area, 100, 100);
+    buf.render_effect(effect, popup_area, Duration::from_millis(10));
+}
+```
+
+</details>
+
+---
 
 ## Handling Events
 
@@ -151,9 +188,7 @@ pub enum Event {
              }
 -            RoomEvent::Nudge(_) => {}
 +            RoomEvent::Nudge(username) => {
-+                if username == self.message_list.username {
-+                    self.popup = Some(Popup::effect(self.event_sender.clone()));
-+                }
++                // TODO
 +            }
              RoomEvent::File { .. } => {}
          }
@@ -162,11 +197,39 @@ pub enum Event {
 
 We don't need to do anything to handle the `EffectRendered` event, it is enough to just receive it on the application side so the render loop can continue.
 
-Also, we are setting the `Popup::Effect` variant when a nudge event is received for the current user.
+---
+
+🎯 **Task**: Complete the `RoomEvent::Nudge` match arm above.
+
+Tip: Construct `Popup::effect` when the nudge event is received for the current user.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+RoomEvent::Nudge(username) => {
+    if username == self.message_list.username {
+        self.popup = Some(Popup::effect(self.event_sender.clone()));
+    }
+}
+```
+
+</details>
+
+We are setting the `Popup::Effect` variant when a nudge event is received for the current user.
+
+---
 
 ## Updating the UI
 
-As a final touch, we can update the `src/message_list.rs` to display a message when a nudge is received:
+---
+
+🎯 **Task**: Show the nudge events in the messages.
+
+Tip: As a final touch, update the `src/message_list.rs` to display a message when `RoomEvent::Nudge` is received.
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```diff
 impl MessageList {
@@ -185,3 +248,7 @@ impl MessageList {
      }
  }
 ```
+
+</details>
+
+---

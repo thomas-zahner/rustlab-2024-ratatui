@@ -12,6 +12,34 @@ It is possible to implement an user input widget from scratch (via controlling t
 cargo add tui-textarea@0.6.1
 ```
 
+---
+
+🎯 **Task**: Implement the `create_text_area` function which returns a new `TextArea` widget.
+
+```rust
+fn create_text_area() -> TextArea<'static> {
+    // ...
+}
+```
+
+Tip: See the [documentation](https://docs.rs/tui-textarea/latest/tui_textarea/struct.TextArea.html) for more information.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+fn create_text_area() -> TextArea<'static> {
+    let mut text_area = TextArea::default();
+    text_area.set_cursor_line_style(Style::default());
+    text_area.set_placeholder_text("Start typing...");
+    text_area
+}
+```
+
+</details>
+
+---
+
 Then we can add the widget to our `App` struct in `src/app.rs`:
 
 ```diff
@@ -28,12 +56,7 @@ Then we can add the widget to our `App` struct in `src/app.rs`:
 
  use crate::message_list::MessageList;
 
-+fn create_text_area() -> TextArea<'static> {
-+    let mut text_area = TextArea::default();
-+    text_area.set_cursor_line_style(Style::default());
-+    text_area.set_placeholder_text("Start typing...");
-+    text_area
-+}
++fn create_text_area() -> TextArea<'static> { /* Implemented above */ }
 +
  pub struct App {
      addr: SocketAddr,
@@ -81,7 +104,25 @@ This means that we no longer have to match on `KeyCode` and `Event` types in the
      }
 ```
 
-Implementing the `handle_key_input` method:
+---
+
+🎯 **Task**: Implement the `handle_key_input` method which handles the `Input` events.
+
+```rust
+impl App {
+    async fn handle_key_input(&mut self, input: Input) -> anyhow::Result<()> {
+        // ...
+    }
+}
+```
+
+- Tip:
+  - Send `Command::Quit` to the server when the `Esc` key is pressed.
+  - Call the `send_message` method when the `Enter` key is pressed.
+  - Pass the rest of the keys to the `TextArea` widget.
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```rust
 impl App {
@@ -105,6 +146,27 @@ impl App {
 
 As seen above, we are handling the `Esc` and `Enter` keys. For the rest of the keys, we are passing them to the `input_without_shortcuts` method of the `TextArea` widget which is used to handle the input events.
 
+</details>
+
+---
+
+---
+
+🎯 **Task**: Implement the `send_message` method which sends the message to the server.
+
+```rust
+impl App {
+    async fn send_message(&mut self) -> anyhow::Result<()> {
+        // ...
+    }
+}
+```
+
+- Tip: Use `tcp_writer` and `text_area.into_lines()` :)
+
+<details>
+<summary><b>Solution</b></summary>
+
 To implement `send_message`, we can simply use `tcp_writer` to send each line to the server and clear the text area afterwards:
 
 ```rust
@@ -125,6 +187,10 @@ impl App {
 }
 ```
 
+</details>
+
+---
+
 ## Rendering the Text Input
 
 Our UI rendering code will get larger as we add more widgets. It's a good time to move it to a separate method/file :)
@@ -139,7 +205,27 @@ Our UI rendering code will get larger as we add more widgets. It's a good time t
              tokio::select! {
 ```
 
-Create a new file `src/ui.rs` and implement the `draw_ui` method there (don't forget to add `mod ui;` to `src/main.rs`):
+---
+
+🎯 **Task**: Implement the `draw_ui` method.
+
+```rust
+impl App {
+    pub fn draw_ui(&mut self, frame: &mut Frame) {
+        // ...
+    }
+}
+```
+
+Tip:
+
+- Create a new file `src/ui.rs` and implement the `draw_ui` method there (don't forget to add `mod ui;` to `src/main.rs`):
+- Use the [`Layout`](https://docs.rs/ratatui/latest/ratatui/layout/struct.Layout.html) to split the available area into two parts:
+  - one for the message list and the other for the text area.
+- Set the title of the `text_area` widget to display the current room name and username using `set_block` and `Block` widget.
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```rust
 use ratatui::{
@@ -184,5 +270,9 @@ It splits the available area into two parts. The `message_area` will take up all
 Also, we are setting titles for the `text_area` widget for e.g. displaying the current room name and username.
 
 And the rest is simply rendering the widgets in their respective areas.
+
+</details>
+
+---
 
 If you run the TUI now, you should be able to send messages to the server and chat with other users! 🚀

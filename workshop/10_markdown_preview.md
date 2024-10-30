@@ -39,11 +39,7 @@ Adding a new popup variant that contains the markdown contents:
 +        contents: String,
 +        event_sender: UnboundedSender<Event>,
 +    ) -> anyhow::Result<Popup> {
-+        let contents = BASE64_STANDARD.decode(contents.as_bytes())?;
-+        Ok(Popup::MarkdownPreview(
-+            String::from_utf8(contents)?,
-+            event_sender,
-+        ))
++      // TODO
 +    }
 +
      pub async fn handle_input(
@@ -74,14 +70,7 @@ Adding a new popup variant that contains the markdown contents:
  }
 
 +fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
-+    let text = tui_markdown::from_str(contents);
-+    let mut popup_area = popup_area(area, 80, 80);
-+    if let (Ok(width), Ok(height)) = (u16::try_from(text.width()), u16::try_from(text.height())) {
-+        popup_area = popup_area.clamp(Rect::new(popup_area.x, popup_area.y, width + 2, height + 2));
-+    }
-+    Clear.render(popup_area, buf);
-+    Block::bordered().render(popup_area, buf);
-+    text.render(popup_area.offset(Offset { x: 1, y: 1 }), buf);
++  // TODO
 +}
 +
  fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {
@@ -91,7 +80,89 @@ Adding a new popup variant that contains the markdown contents:
 
 The most critical part of this change is the `render_markdown_preview` function. The `tui-markdown` crate renders markdown content in the terminal, calculating the necessary area for display (i.e. `clamp`).
 
-Then we can simply decide between previewing an image or markdown content based on the file extension:
+---
+
+🎯 **Task**: Implement the `markdown_preview` method.
+
+```rust
+impl Popup {
+    // ...
+    pub fn markdown_preview(
+        contents: String,
+        event_sender: UnboundedSender<Event>,
+    ) -> anyhow::Result<Popup> {
+        // ...
+    }
+}
+```
+
+Tip: Decode the base64 encoded contents and convert it to a string for constructing the `MarkdownPreview` variant.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+impl Popup {
+    // ...
+    pub fn markdown_preview(
+        contents: String,
+        event_sender: UnboundedSender<Event>,
+    ) -> anyhow::Result<Popup> {
+        let contents = BASE64_STANDARD.decode(contents.as_bytes())?;
+        Ok(Popup::MarkdownPreview(
+            String::from_utf8(contents)?,
+            event_sender,
+        ))
+    }
+}
+```
+
+</details>
+
+---
+
+---
+
+🎯 **Task**: Implement the `render_markdown_preview` method.
+
+```rust
+fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
+  // ...
+}
+```
+
+Tip: Construct a widget using `tui_markdown::from_str` and render it in a popup area.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
+    let text = tui_markdown::from_str(contents);
+    let mut popup_area = popup_area(area, 80, 80);
+    if let (Ok(width), Ok(height)) = (u16::try_from(text.width()), u16::try_from(text.height())) {
+        popup_area = popup_area.clamp(Rect::new(popup_area.x, popup_area.y, width + 2, height + 2));
+    }
+    Clear.render(popup_area, buf);
+    Block::bordered().render(popup_area, buf);
+    text.render(popup_area.offset(Offset { x: 1, y: 1 }), buf);
+}
+```
+
+</details>
+
+---
+
+## Showing The Popup
+
+---
+
+🎯 **Task**: Show the markdown preview popup.
+
+Tip: Decide between image and markdown preview based on the file extension in the `preview_file` method in `src/app.rs`.
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```diff
          let selected_event = self.message_list.selected_event();
@@ -112,5 +183,9 @@ Then we can simply decide between previewing an image or markdown content based 
          }
          Ok(())
 ```
+
+</details>
+
+---
 
 That's it! You should now be able to preview markdown files that are sent to the chat. 🔥

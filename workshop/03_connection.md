@@ -125,6 +125,29 @@ impl App {
         while self.is_running {
             terminal.draw(|frame| frame.render_widget("Hello Ratatui!", frame.area()))?;
 
+            // TODO: Handle terminal and server events concurrently
+        }
+        Ok(())
+    }
+}
+```
+
+---
+
+🎯 **Task**: Read terminal and server events concurrently
+
+We now have access to both terminal reader (`term_stream`) and server writer (`tcp_writer`). Just read them concurrently and handle the exit event when the user presses the `Esc` key.
+
+Tip: [`tokio::select!`](https://tokio.rs/tokio/tutorial/select)
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+        // ...
+        while self.is_running {
+            terminal.draw(|frame| frame.render_widget("Hello Ratatui!", frame.area()))?;
+
             tokio::select! {
                 Some(crossterm_event) = self.term_stream.next() => {
                     let crossterm_event = crossterm_event?;
@@ -140,12 +163,13 @@ impl App {
                 Some(_tcp_event) = tcp_reader.next() => {}
             }
         }
-        Ok(())
-    }
-}
 ```
 
-A couple of points to note:
+</details>
+
+---
+
+A couple of points to note about this implementation:
 
 - [`tokio::select!`](https://tokio.rs/tokio/tutorial/select) macro allows us to wait for multiple futures concurrently. In our case, we are waiting for both terminal events and server responses.
 - We made `tcp_writer` a part of our `App` struct for easy access. It is an `Option` because we will be setting it after the connection is established.

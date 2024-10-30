@@ -63,8 +63,30 @@ impl App {
     }
 
     pub async fn run(mut self, mut terminal: DefaultTerminal) -> anyhow::Result<()> {
-        self.is_running = true;
+        // TODO: Run the TUI
+    }
+}
+```
 
+---
+
+🎯 **Task**: Run the TUI
+
+Create a render loop and handle the terminal events in the `run` method of the `App` struct. Exit the application when the `Esc` key is pressed.
+
+Here are some tips:
+
+- You can draw the UI using the `terminal.draw` method.
+- You can handle the terminal events by calling `term_stream.next()` method.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+impl App {
+    // ...
+    pub async fn run(mut self, mut terminal: DefaultTerminal) -> anyhow::Result<()> {
+        self.is_running = true;
         while self.is_running {
             terminal.draw(|frame| frame.render_widget("Hello Ratatui!", frame.area()))?;
             if let Some(crossterm_event) = self.term_stream.next().await {
@@ -81,7 +103,11 @@ impl App {
 }
 ```
 
-Here we are creating an `App` struct which is responsible for:
+</details>
+
+---
+
+In this chapter we created an `App` struct which is responsible for:
 
 - Holding the state of the application (e.g. `is_running`).
 - Creating the render loop (in the `run` method).

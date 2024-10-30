@@ -62,16 +62,7 @@ You can refactor the `HelpPopup` struct into a more generic `Popup` enum and add
 -        if input.key == Key::Esc {
 -            let _ = self.event_sender.send(Event::PopupClosed);
 +    pub fn file_explorer(event_sender: UnboundedSender<Event>) -> io::Result<Self> {
-+        let theme = Theme::default()
-+            .add_default_title()
-+            .with_title_bottom(|fe| format!("[ {} files ]", fe.files().len()).into())
-+            .with_style(Color::Yellow)
-+            .with_highlight_item_style(Modifier::BOLD)
-+            .with_highlight_dir_style(Style::new().blue().bold())
-+            .with_highlight_symbol("> ")
-+            .with_block(Block::bordered().border_type(BorderType::Rounded));
-+        let file_explorer = FileExplorer::with_theme(theme)?;
-+        Ok(Self::FileExplorer(file_explorer, event_sender))
++      // TODO
 +    }
 +
 +    pub async fn handle_input(
@@ -88,13 +79,7 @@ You can refactor the `HelpPopup` struct into a more generic `Popup` enum and add
 +                    let _ = event_sender.send(Event::PopupClosed);
 +                }
 +                Key::Enter => {
-+                    let file = explorer.current().clone();
-+                    if file.is_dir() {
-+                        return Ok(());
-+                    }
-+                    let event = Event::FileSelected(file);
-+                    let _ = event_sender.send(event);
-+                    let _ = event_sender.send(Event::PopupClosed);
++                  // TODO
 +                }
 +                _ => explorer.handle(&raw_event)?,
 +            },
@@ -138,15 +123,106 @@ You can refactor the `HelpPopup` struct into a more generic `Popup` enum and add
 +}
 +
 +fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {
-+    let popup_area = popup_area(area, 50, 50);
-+    Clear.render(popup_area, buf);
-+    explorer.widget().render(popup_area, buf);
++ // TODO
 +}
 +
  fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {
      let vertical = Layout::vertical([Constraint::Percentage(percent_y)]).flex(Flex::Center);
      let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
 ```
+
+---
+
+🎯 **Task**: Implement the `Popup::file_explorer` method.
+
+```rust
+impl Popup {
+  pub fn file_explorer(event_sender: UnboundedSender<Event>) -> io::Result<Self> {
+    // ...
+  }
+}
+```
+
+Tip: You can use the [`FileExplorer::new`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.new) or [`FileExplorer::with_theme`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.with_theme) method to create a new file explorer.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+impl Popup {
+    // ...
+    pub fn file_explorer(event_sender: UnboundedSender<Event>) -> io::Result<Self> {
+        let theme = Theme::default()
+            .add_default_title()
+            .with_title_bottom(|fe| format!("[ {} files ]", fe.files().len()).into())
+            .with_style(Color::Yellow)
+            .with_highlight_item_style(Modifier::BOLD)
+            .with_highlight_dir_style(Style::new().blue().bold())
+            .with_highlight_symbol("> ")
+            .with_block(Block::bordered().border_type(BorderType::Rounded));
+        let file_explorer = FileExplorer::with_theme(theme)?;
+        Ok(Self::FileExplorer(file_explorer, event_sender))
+    }
+}
+```
+
+</details>
+
+---
+
+---
+
+🎯 **Task**: Handle the `Enter` key in the `Popup::handle_input` method when the file explorer is open.
+
+Tip: Send the `Event::FileSelected` event when a file is selected and close the popup via `Event::PopupClosed`.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+Key::Enter => {
+    let file = explorer.current().clone();
+    if file.is_dir() {
+        return Ok(());
+    }
+    let event = Event::FileSelected(file);
+    let _ = event_sender.send(event);
+    let _ = event_sender.send(Event::PopupClosed);
+}
+```
+
+</details>
+
+---
+
+---
+
+🎯 **Task**: Implement the `render_explorer` method.
+
+```rust
+fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {
+  // ...
+}
+```
+
+Tip: Use `popup_area` to calculate the popup area, similarly to the `render_help` method.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {
+    let popup_area = popup_area(area, 50, 50);
+    Clear.render(popup_area, buf);
+    explorer.widget().render(popup_area, buf);
+}
+```
+
+</details>
+
+---
+
+In summary:
 
 - We have added a `Popup::file_explorer` method to create a new `Popup::FileExplorer` variant.
 - The `Popup::handle_input` method now takes a `CrosstermEvent` parameter to handle raw events. See the [`handle`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.handle) method of the `FileExplorer` struct for more information.
@@ -209,11 +285,7 @@ Let's update our `src/app.rs` to handle the file explorer popup:
                  self.handle_key_input(input).await?;
              }
 +            Event::FileSelected(file) => {
-+                self.popup = None;
-+                let contents = tokio::fs::read(file.path()).await?;
-+                let base64 = BASE64_STANDARD.encode(contents);
-+                let command = Command::SendFile(file.name().to_string(), base64);
-+                self.send(command).await;
++              // TODO
 +            }
              Event::PopupClosed => {
                  self.popup = None;
@@ -244,11 +316,37 @@ Let's update our `src/app.rs` to handle the file explorer popup:
      pub async fn handle_server_event(&mut self, event: String) -> anyhow::Result<()> {
 ```
 
-When a file is selected in the file explorer, we read the file contents, encode it in base64, and send it to the server as a `Command::SendFile` command.
+---
+
+🎯 **Task**: Implement the `Event::FileSelected` event in the `App::handle_event` method.
+
+Tip: When a file is selected in the file explorer, we read the file contents, encode it in base64, and send it to the server as a `Command::SendFile` command.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+Event::FileSelected(file) => {
+    self.popup = None;
+    let contents = tokio::fs::read(file.path()).await?;
+    let base64 = BASE64_STANDARD.encode(contents);
+    let command = Command::SendFile(file.name().to_string(), base64);
+    self.send(command).await;
+}
+```
+
+</details>
+
+---
 
 ## Updating the UI
 
-As a final touch, we can update the `src/message_list.rs` to display a message when a file is sent:
+---
+
+🎯 **Task**: As a final touch, update the `src/message_list.rs` to display a message when a file is sent.
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```diff
 +            RoomEvent::File { filename, .. } => Some(Line::from(vec![
@@ -262,5 +360,9 @@ As a final touch, we can update the `src/message_list.rs` to display a message w
          }
      }
 ```
+
+</details>
+
+---
 
 Now you can run the TUI and send files to the server! 📁

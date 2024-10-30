@@ -29,7 +29,7 @@ Let's start by making the `MessageList` widget stateful:
              .direction(ListDirection::BottomToTop);
 
 -        Widget::render(list, area, buf);
-+        StatefulWidget::render(list, area, buf, &mut self.state);
++        // TODO: Render the list with state
      }
  }
 
@@ -46,6 +46,23 @@ Let's start by making the `MessageList` widget stateful:
 ```
 
 We can simply depend on [`ListState`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.ListState.html) of Ratatui to allow scrolling and selection of items in the list.
+
+---
+
+🎯 **Task**: Render the List with a state.
+
+Tip: `List` is a _StatefulWidget_ :)
+
+<details>
+<summary><b>Solution</b></summary>
+
+```diff
++        StatefulWidget::render(list, area, buf, &mut self.state);
+```
+
+</details>
+
+---
 
 To handle the scrolling, we need to update `src/app.rs` as follows:
 
@@ -74,17 +91,7 @@ To handle the scrolling, we need to update `src/app.rs` as follows:
      }
 
 +    fn preview_file(&mut self) -> Result<(), anyhow::Error> {
-+        let selected_event = self.message_list.selected_event();
-+        let event_sender = self.event_sender.clone();
-+        if let Some(ServerEvent::RoomEvent {
-+            event: RoomEvent::File { contents, .. },
-+            ..
-+        }) = selected_event
-+        {
-+            let popup = Popup::image_preview(contents, event_sender)?;
-+            self.popup = Some(popup);
-+        }
-+        Ok(())
++       // ...
 +    }
 +
      pub async fn handle_server_event(&mut self, event: String) -> anyhow::Result<()> {
@@ -93,6 +100,47 @@ To handle the scrolling, we need to update `src/app.rs` as follows:
 ```
 
 You can now press up and down to navigate the message list.
+
+---
+
+🎯 **Task**: Implement the `preview_file` method to show the image preview popup.
+
+```rust
+impl App {
+    // ...
+    fn preview_file(&mut self) -> Result<(), anyhow::Error> {
+      // TODO
+    }
+}
+```
+
+Tip: Check if the selected event is a `ServerEvent::RoomEvent` with a `RoomEvent::File` variant and set `self.popup` to `Some(_)`
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+impl App {
+    // ...
+    fn preview_file(&mut self) -> Result<(), anyhow::Error> {
+        let selected_event = self.message_list.selected_event();
+        let event_sender = self.event_sender.clone();
+        if let Some(ServerEvent::RoomEvent {
+            event: RoomEvent::File { contents, .. },
+            ..
+        }) = selected_event
+        {
+            let popup = Popup::image_preview(contents, event_sender)?;
+            self.popup = Some(popup);
+        }
+        Ok(())
+    }
+}
+```
+
+</details>
+
+---
 
 ## Rendering Images
 
@@ -140,13 +188,7 @@ Update the `src/popup.rs` to add a new variant:
 +        contents: String,
 +        event_sender: UnboundedSender<Event>,
 +    ) -> anyhow::Result<Popup> {
-+        let data = BASE64_STANDARD.decode(contents.as_bytes())?;
-+        let img = image::load_from_memory(&data)?;
-+        let user_fontsize = (7, 14);
-+        let mut picker = Picker::new(user_fontsize);
-+        picker.guess_protocol();
-+        let image = picker.new_resize_protocol(img);
-+        Ok(Popup::ImagePreview(image, event_sender))
++      // TODO
 +    }
 +
      pub async fn handle_input(
@@ -175,9 +217,7 @@ Update the `src/popup.rs` to add a new variant:
  }
 
 +fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn StatefulProtocol>) {
-+    let popup_area = popup_area(area, 80, 80);
-+    let image = StatefulImage::new(None);
-+    image.render(popup_area, buf, protocol);
++  // TODO
 +}
 +
  fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {
@@ -185,6 +225,76 @@ Update the `src/popup.rs` to add a new variant:
      let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
 ```
 
+---
+
+🎯 **Task**: Implement the `image_preview` method in the `Popup` enum.
+
+```rust
+impl Popup {
+    // ...
+    pub fn image_preview(
+        contents: String,
+        event_sender: UnboundedSender<Event>,
+    ) -> anyhow::Result<Popup> {
+      // ...
+    }
+}
+```
+
+Tip: Decode the base64 encoded image and load it using the `image` crate. Then, create a `Picker` and resize the image using the `new_resize_protocol` method.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+impl Popup {
+    // ...
+    pub fn image_preview(
+        contents: String,
+        event_sender: UnboundedSender<Event>,
+    ) -> anyhow::Result<Popup> {
+        let data = BASE64_STANDARD.decode(contents.as_bytes())?;
+        let img = image::load_from_memory(&data)?;
+        let user_fontsize = (7, 14);
+        let mut picker = Picker::new(user_fontsize);
+        picker.guess_protocol();
+        let image = picker.new_resize_protocol(img);
+        Ok(Popup::ImagePreview(image, event_sender))
+    }
+}
+```
+
 You can see that we are _guessing_ the available protocol for the image and then resizing it when the `Popup::ImagePreview` variant is created. Later on, we create the `StatefulImage` widget and render it in the popup.
+
+</details>
+
+---
+
+---
+
+🎯 **Task**: Implement the `render_image_preview` method.
+
+```rust
+fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn StatefulProtocol>) {
+    // ...
+}
+```
+
+Tip: This should be similar to the other popups. Use `StatefulImage` widget.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn StatefulProtocol>) {
+    let popup_area = popup_area(area, 80, 80);
+    let image = StatefulImage::new(None);
+    image.render(popup_area, buf, protocol);
+}
+```
+
+</details>
+
+---
 
 When you run the TUI and press `Ctrl-p` on an image message, you should see the preview of the image! 🖼️

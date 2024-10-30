@@ -47,7 +47,7 @@ impl Logger {
     }
 
     pub async fn handle_input(&mut self, input: Input) -> anyhow::Result<()> {
-        tracing::debug!("Logger input: {:?}", input);
+        // TODO: print log
         match (input.ctrl, input.key) {
             (true, Key::Char('l')) => {
                 let _ = self.event_sender.send(Event::LoggerClosed);
@@ -69,7 +69,30 @@ impl Logger {
         Ok(())
     }
 }
+```
 
+---
+
+🎯 **Task**: Implement the `Widget` trait for the `Logger` struct.
+
+```rust
+
+impl Widget for &Logger {
+    fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer)
+    where
+        Self: Sized,
+    {
+       // ...
+    }
+}
+```
+
+Tip: Construct a [`TuiLoggerSmartWidget`](https://docs.rs/tui-logger/latest/tui_logger/struct.TuiLoggerSmartWidget.html) and render it in the `render` method.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
 impl Widget for &Logger {
     fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer)
     where
@@ -93,6 +116,30 @@ impl Widget for &Logger {
     }
 }
 ```
+
+</details>
+
+---
+
+---
+
+🎯 **Task**: Print a log in the `handle_input` method.
+
+Tip: Use the `tracing` crate to print an arbitrary log (e.g. `input`)
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+pub async fn handle_input(&mut self, input: Input) -> anyhow::Result<()> {
+    tracing::debug!("Logger input: {:?}", input);
+    // ...
+}
+```
+
+</details>
+
+---
 
 We are mapping the input to the logger event in `handle_input` and rendering the smart widget in the `Widget` implementation. You can customize the colors and output formats as you wish.
 
@@ -133,18 +180,7 @@ Initialize the tracing subscriber in `src/main.rs`:
  }
 
 +fn init_tracing() -> anyhow::Result<WorkerGuard> {
-+    let file = File::create("tracing.log")?;
-+    let (non_blocking, guard) = tracing_appender::non_blocking(file);
-+    let env_filter = EnvFilter::builder()
-+        .with_default_directive(Level::DEBUG.into())
-+        .from_env_lossy();
-+    tracing_subscriber::registry()
-+        .with(tui_logger::tracing_subscriber_layer())
-+        .with(fmt::layer().with_writer(non_blocking))
-+        .with(env_filter)
-+        .init();
-+    tui_logger::init_logger(LevelFilter::Debug)?;
-+    Ok(guard)
++ // TODO
 +}
 +
  #[tokio::main]
@@ -157,10 +193,46 @@ Initialize the tracing subscriber in `src/main.rs`:
 
 ```
 
+---
+
+🎯 **Task**: Initialize logging.
+
+```rust
+fn init_tracing() -> anyhow::Result<WorkerGuard> {
+  // ...
+}
+```
+
+Tip: See the [`TracingSubscriberLayer`](https://docs.rs/tui-logger/latest/tui_logger/struct.TuiTracingSubscriberLayer.html) from `tui-logger` crate.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+fn init_tracing() -> anyhow::Result<WorkerGuard> {
+    let file = File::create("tracing.log")?;
+    let (non_blocking, guard) = tracing_appender::non_blocking(file);
+    let env_filter = EnvFilter::builder()
+        .with_default_directive(Level::DEBUG.into())
+        .from_env_lossy();
+    tracing_subscriber::registry()
+        .with(tui_logger::tracing_subscriber_layer())
+        .with(fmt::layer().with_writer(non_blocking))
+        .with(env_filter)
+        .init();
+    tui_logger::init_logger(LevelFilter::Debug)?;
+    Ok(guard)
+}
+```
+
 Two important things to note here:
 
 1. We need to use the `tui_logger::tracing_subscriber_layer()` to integrate the logger widget with the tracing subscriber.
 2. The worker guard is necessary to keep the logging thread alive.
+
+</details>
+
+---
 
 ## Updating the Application
 
@@ -264,7 +336,14 @@ This also adds an info log when handling server events.
 
 ## Rendering
 
-We want to show the logger pane at the bottom of the screen when it is active. To achieve that, we can use a new constraint and set its percentage to 0 when logger is `None`.
+---
+
+🎯 **Task**: Render the logger widget at the bottom of the screen when it is active.
+
+Tip: Use constraints in `src/ui.rs`,
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```diff
 use crate::app::App;
@@ -294,6 +373,8 @@ use crate::app::App;
              frame.render_widget(popup, frame.area());
 ```
 
-The rest is simply calling `render_widget` with the logger widget if it is active.
+</details>
+
+---
 
 Run your TUI and press `Ctrl-l` to see the logger pane at the bottom of the screen now! 🎉

@@ -152,13 +152,44 @@ impl HelpPopup {
     }
 
     pub async fn handle_input(&mut self, input: Input) -> anyhow::Result<()> {
-        if input.key == Key::Esc {
-            let _ = self.event_sender.send(Event::PopupClosed);
-        }
+        // ...
         Ok(())
     }
 }
 
+impl Widget for &mut HelpPopup {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+      // ...
+    }
+}
+
+fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {
+    let vertical = Layout::vertical([Constraint::Percentage(percent_y)]).flex(Flex::Center);
+    let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
+    let [area] = vertical.areas(area);
+    let [area] = horizontal.areas(area);
+    area
+}
+```
+
+---
+
+🎯 **Task**: Implement the `Widget` trait for `HelpPopup`.
+
+```rust
+impl Widget for &mut HelpPopup {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+      // ...
+    }
+}
+```
+
+Tip: Use `popup_area` to calculate the area for the popup and use the `Clear` widget to clear the area before rendering.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
 impl Widget for &mut HelpPopup {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let popup_area = popup_area(area, 30, 30);
@@ -173,23 +204,74 @@ impl Widget for &mut HelpPopup {
             .render(popup_area, buf);
     }
 }
+```
 
-fn popup_area(area: Rect, percent_x: u16, percent_y: u16) -> Rect {
-    let vertical = Layout::vertical([Constraint::Percentage(percent_y)]).flex(Flex::Center);
-    let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
-    let [area] = vertical.areas(area);
-    let [area] = horizontal.areas(area);
-    area
+[`Clear`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.Clear.html) widget of Ratatui is used to clear the area before rendering. `popup_area` is a helper function to calculate the area for the popup.
+
+</details>
+
+---
+
+---
+
+🎯 **Task**: Implement the `handle_input` method for `HelpPopup`.
+
+```rust
+impl HelpPopup {
+    pub async fn handle_input(&mut self, input: Input) -> anyhow::Result<()> {
+        // ...
+        Ok(())
+    }
+}
+```
+
+Tip: Send the `Event::PopupClosed` event via `event_sender` when the user presses the `Esc` key.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+impl HelpPopup {
+    // ...
+    pub async fn handle_input(&mut self, input: Input) -> anyhow::Result<()> {
+        if input.key == Key::Esc {
+            let _ = self.event_sender.send(Event::PopupClosed);
+        }
+        Ok(())
+    }
 }
 ```
 
 You can see that we are effectively using the sender half (`UnboundedSender<Event>`) of our custom event channel and sending a `Event::PopupClosed` event when the user presses the `Esc` key. We will define that event in `src/app.rs` in a moment.
 
-Also, [`Clear`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.Clear.html) widget of Ratatui is used to clear the area before rendering. `popup_area` is a helper function to calculate the area for the popup.
+</details>
+
+---
 
 The constructor requires the key bindings as a string and the event sender. We will define the key bindings in the main application and pass them to the popup. So let's do that!
 
 ## Putting Everything Together
+
+---
+
+🎯 **Task**: Define a constant string for `KEY_BINDINGS`
+
+Based on your liking, define a constant string in `src/app.rs`.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+const KEY_BINDINGS: &str = r#"
+- [Ctrl + h] Help
+- [Enter] Send message
+- [Esc] Quit
+"#;
+```
+
+</details>
+
+---
 
 Here is the final changes that we need to make in `src/app.rs`:
 
@@ -212,11 +294,7 @@ Here is the final changes that we need to make in `src/app.rs`:
 +use crate::popup::HelpPopup;
  use crate::room_list::RoomList;
 
-+const KEY_BINDINGS: &str = r#"
-+- [Ctrl + h] Help
-+- [Enter] Send message
-+- [Esc] Quit
-+"#;
++const KEY_BINDINGS: &str = "";
 +
  fn create_text_area() -> TextArea<'static> {
      let mut text_area = TextArea::default();
@@ -298,21 +376,12 @@ Here is the final changes that we need to make in `src/app.rs`:
 +        Ok(())
 +    }
 +
-     async fn handle_key_input(&mut self, input: Input) -> anyhow::Result<()> {
--        match input.key {
--            Key::Esc => {
-+        match (input.ctrl, input.key) {
-+            (_, Key::Esc) => {
-                 self.send(Command::Quit).await;
-             }
--            Key::Enter => self.send_message().await?,
--            _ => {
-+            (_, Key::Enter) => self.send_message().await?,
-+            (true, Key::Char('h')) => self.show_help(),
-+            (_, _) => {
-                 let _ = self.text_area.input_without_shortcuts(input);
-             }
-         }
++
++   async fn handle_key_input(&mut self, input: Input) -> anyhow::Result<()> {
++       // TODO: handle key inputs
++       Ok(())
++    }
+
 @@ -96,6 +143,11 @@ impl App {
          Ok(())
      }
@@ -328,6 +397,47 @@ Here is the final changes that we need to make in `src/app.rs`:
 ```
 
 `KEY_BINDINGS` is a constant string that contains the key bindings. We use this to create the `HelpPopup` instance when the user presses `Ctrl-h`. We now also handle the `Event::PopupClosed` to close the popup (i.e. set it to `None`).
+
+---
+
+🎯 **Task**: Implement the missing `handle_key_input` method above.
+
+```rust
+impl App {
+    // ...
+    async fn handle_key_input(&mut self, input: Input) -> anyhow::Result<()> {
+      // ...
+    }
+}
+```
+
+Tip: Call the `show_help` method when the user presses `Ctrl-h`. You can check for `input.ctrl` and `input.key`.
+
+<details>
+<summary><b>Solution</b></summary>
+
+```rust
+impl App {
+    // ...
+    async fn handle_key_input(&mut self, input: Input) -> anyhow::Result<()> {
+        match (input.ctrl, input.key) {
+            (_, Key::Esc) => {
+                self.send(Command::Quit).await;
+            }
+            (_, Key::Enter) => self.send_message().await?,
+            (true, Key::Char('h')) => self.show_help(),
+            (_, _) => {
+                let _ = self.text_area.input_without_shortcuts(input);
+            }
+        }
+        Ok(())
+    }
+}
+```
+
+</details>
+
+---
 
 ## Rendering
 

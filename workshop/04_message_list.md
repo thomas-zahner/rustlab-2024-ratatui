@@ -26,7 +26,31 @@ pub struct MessageList {
 
 The `MessageList` struct will hold the messages that we receive from the server, the room name, and the username of the user. We will use this information to display the messages in the Ratatui's [`List`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.List.html) widget.
 
-So let's implement the `Widget` trait for the `MessageList` struct:
+---
+
+🎯 **Task**: Implement the [`Widget`](https://docs.rs/ratatui/latest/ratatui/widgets/trait.Widget.html) trait for the `MessageList` struct
+
+```rust
+impl Widget for &mut MessageList {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+      // ...
+    }
+}
+```
+
+Tips:
+
+- See [implementing widgets](https://ratatui.rs/concepts/widgets/#implementing-widgets) in the Ratatui documentation.
+- You can use the built-in [`List`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.List.html) widget from Ratatui.
+- Think simple, just render items on the list for now :)
+
+Later on, we will create 2 helper functions in the `impl MessageList` block for further styling:
+
+1. `server_event_line` which will take a `ServerEvent` and return a styled `Line` for the event.
+2. `room_event_line` which will take a `Username`, a date, and a `RoomEvent` and return a styled `Line` for the event.
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```rust
 use ratatui::{
@@ -64,7 +88,24 @@ The render logic consists of these steps:
 1. We iterate over the `events` vector (in reverse order) and create styled [`ListItem`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.ListItem.html)s for each event (with the help of the `server_event_line` method which we will implement next).
 2. We create a `List` widget with the items and set the styling options such as the block title, highlight style, and direction.
 
-So let's implement the `server_event_line` method:
+</details>
+
+---
+
+---
+
+🎯 **Task**: Implement the `server_event_line` method. Match on the `ServerEvent` enum and return a styled `Line` for each event type.
+
+```rust
+impl MessageList {
+    fn server_event_line<'a>(&self, event: &'a ServerEvent) -> Option<Line<'a>> {
+        // ...
+    }
+}
+```
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```rust
 impl MessageList {
@@ -84,9 +125,31 @@ impl MessageList {
 }
 ```
 
-Here we pattern match on the `ServerEvent` enum and return a styled `Line` for each event type. For example, if the event is a `CommandHelp` event, we return a blue colored line with the events. Calling `.blue()` is possible thanks to the [`Stylize`](https://docs.rs/ratatui/latest/ratatui/style/trait.Stylize.html) trait of Ratatui :)
+Here we pattern match on the `ServerEvent` enum and return a styled `Line` for each event type. For example, if the event is a `CommandHelp` event, we return a blue colored line with the events. Calling `.blue()` is possible thanks to the [`Stylize`](https://docs.rs/ratatui/latest/ratatui/style/trait.Stylize.html) trait of Ratatui.
 
-We also call the `room_event_line` method for `RoomEvent` events. Let's implement it:
+</details>
+
+---
+
+---
+
+🎯 **Task**: Implement the `room_event_line` method for `RoomEvent` events, similar to the `server_event_line` method.
+
+```rust
+impl MessageList {
+    fn room_event_line<'a>(
+        &self,
+        username: Username,
+        date: &'a str,
+        event: &'a RoomEvent,
+    ) -> Option<Line<'a>> {
+        // ...
+    }
+}
+```
+
+<details>
+<summary><b>Solution</b></summary>
 
 ```rust
 impl MessageList {
@@ -143,6 +206,10 @@ The way that `Line` is constructed is by using the `from` method which takes a V
 - Each `Span` can have a different style.
 - We can also use the `into` method to convert a String into a `Span`.
 - Chaining the styling methods (e.g. `.cyan().italic()`) on a String will return a `Span` with the specified style.
+
+</details>
+
+---
 
 ## Using the Widget
 
