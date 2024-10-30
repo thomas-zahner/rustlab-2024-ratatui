@@ -54,7 +54,7 @@ We can simply depend on [`ListState`](https://docs.rs/ratatui/latest/ratatui/wid
 💡 **Tip:** `List` is a _StatefulWidget_ :)
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```diff
 +        StatefulWidget::render(list, area, buf, &mut self.state);
@@ -117,7 +117,7 @@ impl App {
 💡 **Tip:** Check if the selected event is a `ServerEvent::RoomEvent` with a `RoomEvent::File` variant and set `self.popup` to `Some(_)`
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl App {
@@ -244,7 +244,7 @@ impl Popup {
 💡 **Tip:** Decode the base64 encoded image and load it using the `image` crate. Then, create a `Picker` and resize the image using the `new_resize_protocol` method.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl Popup {
@@ -283,7 +283,7 @@ fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn Sta
 💡 **Tip:** This should be similar to the other popups. Use `StatefulImage` widget.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn StatefulProtocol>) {

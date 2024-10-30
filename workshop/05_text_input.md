@@ -25,7 +25,7 @@ fn create_text_area() -> TextArea<'static> {
 💡 **Tip:** See the [documentation](https://docs.rs/tui-textarea/latest/tui_textarea/struct.TextArea.html) for more information.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 fn create_text_area() -> TextArea<'static> {
@@ -122,7 +122,7 @@ impl App {
   - Pass the rest of the keys to the `TextArea` widget.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl App {
@@ -165,7 +165,7 @@ impl App {
 - 💡 **Tip:** Use `tcp_writer` and `text_area.into_lines()` :)
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 To implement `send_message`, we can simply use `tcp_writer` to send each line to the server and clear the text area afterwards:
 
@@ -225,7 +225,7 @@ impl App {
 - Set the title of the `text_area` widget to display the current room name and username using `set_block` and `Block` widget.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 use ratatui::{

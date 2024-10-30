@@ -146,7 +146,7 @@ impl Popup {
 💡 **Tip:** You can use the [`FileExplorer::new`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.new) or [`FileExplorer::with_theme`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.with_theme) method to create a new file explorer.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl Popup {
@@ -177,7 +177,7 @@ impl Popup {
 💡 **Tip:** Send the `Event::FileSelected` event when a file is selected and close the popup via `Event::PopupClosed`.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 Key::Enter => {
@@ -208,7 +208,7 @@ fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {
 💡 **Tip:** Use `popup_area` to calculate the popup area, similarly to the `render_help` method.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {
@@ -323,7 +323,7 @@ Let's update our `src/app.rs` to handle the file explorer popup:
 💡 **Tip:** When a file is selected in the file explorer, we read the file contents, encode it in base64, and send it to the server as a `Command::SendFile` command.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 Event::FileSelected(file) => {
@@ -346,7 +346,7 @@ Event::FileSelected(file) => {
 🎯 **Task**: As a final touch, update the `src/message_list.rs` to display a message when a file is sent.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅ ✅</summary>
 
 ```diff
 +            RoomEvent::File { filename, .. } => Some(Line::from(vec![

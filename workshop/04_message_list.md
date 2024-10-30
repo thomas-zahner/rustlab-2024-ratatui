@@ -50,7 +50,7 @@ Later on, we will create 2 helper functions in the `impl MessageList` block for 
 2. `room_event_line` which will take a `Username`, a date, and a `RoomEvent` and return a styled `Line` for the event.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 use ratatui::{
@@ -105,7 +105,7 @@ impl MessageList {
 ```
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl MessageList {
@@ -149,7 +149,7 @@ impl MessageList {
 ```
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl MessageList {

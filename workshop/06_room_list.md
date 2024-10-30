@@ -63,7 +63,7 @@ impl Widget for &mut RoomList {
 💡 **Tip:** See the API of the [`tui-tree-widget`](https://docs.rs/tui-tree-widget/) crate.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl Widget for &mut RoomList {
@@ -211,7 +211,7 @@ Going through the changes:
 💡 **Tip:** Add a new constraint and then call `render_widget` on `self.room_list` in the `draw_ui` method (in `src/ui.rs`):
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```diff
          frame.render_widget(&self.text_area, text_area);

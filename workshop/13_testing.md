@@ -66,7 +66,7 @@ cargo install cargo-insta # install the CLI tool
   - [insta's assert_snapshot](https://docs.rs/insta/latest/insta/macro.assert_snapshot.html)
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 #[cfg(test)]

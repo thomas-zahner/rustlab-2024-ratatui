@@ -187,7 +187,7 @@ impl Widget for &mut HelpPopup {
 💡 **Tip:** Use `popup_area` to calculate the area for the popup and use the `Clear` widget to clear the area before rendering.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl Widget for &mut HelpPopup {
@@ -228,7 +228,7 @@ impl HelpPopup {
 💡 **Tip:** Send the `Event::PopupClosed` event via `event_sender` when the user presses the `Esc` key.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl HelpPopup {
@@ -259,7 +259,7 @@ The constructor requires the key bindings as a string and the event sender. We w
 Based on your liking, define a constant string in `src/app.rs`.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 const KEY_BINDINGS: &str = r#"
@@ -414,7 +414,7 @@ impl App {
 💡 **Tip:** Call the `show_help` method when the user presses `Ctrl-h`. You can check for `input.ctrl` and `input.key`.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl App {

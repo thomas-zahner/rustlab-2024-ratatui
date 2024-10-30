@@ -90,7 +90,7 @@ impl Widget for &Logger {
 💡 **Tip:** Construct a [`TuiLoggerSmartWidget`](https://docs.rs/tui-logger/latest/tui_logger/struct.TuiLoggerSmartWidget.html) and render it in the `render` method.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl Widget for &Logger {
@@ -128,7 +128,7 @@ impl Widget for &Logger {
 💡 **Tip:** Use the `tracing` crate to print an arbitrary log (e.g. `input`)
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 pub async fn handle_input(&mut self, input: Input) -> anyhow::Result<()> {
@@ -206,7 +206,7 @@ fn init_tracing() -> anyhow::Result<WorkerGuard> {
 💡 **Tip:** See the [`TracingSubscriberLayer`](https://docs.rs/tui-logger/latest/tui_logger/struct.TuiTracingSubscriberLayer.html) from `tui-logger` crate.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 fn init_tracing() -> anyhow::Result<WorkerGuard> {
@@ -343,7 +343,7 @@ This also adds an info log when handling server events.
 💡 **Tip:** Use constraints in `src/ui.rs`,
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```diff
 use crate::app::App;

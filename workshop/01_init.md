@@ -5,7 +5,7 @@ Here is your first task! Create a new project named "tui" in the workspace.
 If you are already familiar with `cargo`, this should be a breeze. If not, don't worry! Just check the output of `cargo --help`.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```sh
 cargo new tui

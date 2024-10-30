@@ -99,7 +99,7 @@ impl Popup {
 💡 **Tip:** Decode the base64 encoded contents and convert it to a string for constructing the `MarkdownPreview` variant.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl Popup {
@@ -134,7 +134,7 @@ fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
 💡 **Tip:** Construct a widget using `tui_markdown::from_str` and render it in a popup area.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
@@ -162,7 +162,7 @@ fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
 💡 **Tip:** Decide between image and markdown preview based on the file extension in the `preview_file` method in `src/app.rs`.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```diff
          let selected_event = self.message_list.selected_event();

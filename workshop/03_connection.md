@@ -141,7 +141,7 @@ We now have access to both terminal reader (`term_stream`) and server writer (`t
 💡 **Tip:** [`tokio::select!`](https://tokio.rs/tokio/tutorial/select)
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
         // ...

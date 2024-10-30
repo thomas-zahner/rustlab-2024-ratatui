@@ -80,7 +80,7 @@ Here are some tips:
 - You can handle the terminal events by calling `term_stream.next()` method.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 impl App {

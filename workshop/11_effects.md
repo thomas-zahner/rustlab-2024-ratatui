@@ -88,7 +88,7 @@ impl Popup {
 💡 **Tip:** Create an effect composition using [`tachyonfx`](https://docs.rs/tachyonfx). See the [minimal example](https://github.com/rhysd/tui-textarea/blob/main/examples/minimal.rs) in the repository for reference.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 pub fn effect(event_sender: UnboundedSender<Event>) -> Self {
@@ -133,7 +133,7 @@ That's `tachyonfx` doing its magic and constructing an effect to apply to the bu
 - Also complete the `render_effect` function, similarly to the other popups.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 Popup::Effect(effect, event_sender) => {
@@ -204,7 +204,7 @@ We don't need to do anything to handle the `EffectRendered` event, it is enough 
 💡 **Tip:** Construct `Popup::effect` when the nudge event is received for the current user.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```rust
 RoomEvent::Nudge(username) => {
@@ -229,7 +229,7 @@ We are setting the `Popup::Effect` variant when a nudge event is received for th
 💡 **Tip:** As a final touch, update the `src/message_list.rs` to display a message when `RoomEvent::Nudge` is received.
 
 <details>
-<summary><b>Solution</b></summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```diff
 impl MessageList {
