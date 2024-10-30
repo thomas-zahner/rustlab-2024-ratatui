@@ -346,7 +346,7 @@ Event::FileSelected(file) => {
 🎯 **Task**: As a final touch, update the `src/message_list.rs` to display a message when a file is sent.
 
 <details>
-<summary><b>Solution</b> ✅ ✅</summary>
+<summary><b>Solution</b> ✅</summary>
 
 ```diff
 +            RoomEvent::File { filename, .. } => Some(Line::from(vec![
