@@ -85,7 +85,7 @@ impl Popup {
 }
 ```
 
-Tip: Create an effect composition using [`tachyonfx`](https://docs.rs/tachyonfx). See the [minimal example](https://github.com/rhysd/tui-textarea/blob/main/examples/minimal.rs) in the repository for reference.
+💡 **Tip:** Create an effect composition using [`tachyonfx`](https://docs.rs/tachyonfx). See the [minimal example](https://github.com/rhysd/tui-textarea/blob/main/examples/minimal.rs) in the repository for reference.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -126,7 +126,7 @@ That's `tachyonfx` doing its magic and constructing an effect to apply to the bu
 
 🎯 **Task**: Render the effect popup.
 
-Tips:
+💡 **Tips:**
 
 - In the `Widget` implementation of `Popup`, add a match arm for `Popup::Effect` and render the effect.
 - You need to send `Event::EffectRendered` when the effect is running (i.e. `effect.running()`) and `Event::PopupClosed` when it is done.
@@ -201,7 +201,7 @@ We don't need to do anything to handle the `EffectRendered` event, it is enough 
 
 🎯 **Task**: Complete the `RoomEvent::Nudge` match arm above.
 
-Tip: Construct `Popup::effect` when the nudge event is received for the current user.
+💡 **Tip:** Construct `Popup::effect` when the nudge event is received for the current user.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -226,7 +226,7 @@ We are setting the `Popup::Effect` variant when a nudge event is received for th
 
 🎯 **Task**: Show the nudge events in the messages.
 
-Tip: As a final touch, update the `src/message_list.rs` to display a message when `RoomEvent::Nudge` is received.
+💡 **Tip:** As a final touch, update the `src/message_list.rs` to display a message when `RoomEvent::Nudge` is received.
 
 <details>
 <summary><b>Solution</b></summary>

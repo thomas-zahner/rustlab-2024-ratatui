@@ -184,7 +184,7 @@ impl Widget for &mut HelpPopup {
 }
 ```
 
-Tip: Use `popup_area` to calculate the area for the popup and use the `Clear` widget to clear the area before rendering.
+💡 **Tip:** Use `popup_area` to calculate the area for the popup and use the `Clear` widget to clear the area before rendering.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -225,7 +225,7 @@ impl HelpPopup {
 }
 ```
 
-Tip: Send the `Event::PopupClosed` event via `event_sender` when the user presses the `Esc` key.
+💡 **Tip:** Send the `Event::PopupClosed` event via `event_sender` when the user presses the `Esc` key.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -411,7 +411,7 @@ impl App {
 }
 ```
 
-Tip: Call the `show_help` method when the user presses `Ctrl-h`. You can check for `input.ctrl` and `input.key`.
+💡 **Tip:** Call the `show_help` method when the user presses `Ctrl-h`. You can check for `input.ctrl` and `input.key`.
 
 <details>
 <summary><b>Solution</b></summary>

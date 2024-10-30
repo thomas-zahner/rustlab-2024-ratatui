@@ -138,7 +138,7 @@ impl App {
 
 We now have access to both terminal reader (`term_stream`) and server writer (`tcp_writer`). Just read them concurrently and handle the exit event when the user presses the `Esc` key.
 
-Tip: [`tokio::select!`](https://tokio.rs/tokio/tutorial/select)
+💡 **Tip:** [`tokio::select!`](https://tokio.rs/tokio/tutorial/select)
 
 <details>
 <summary><b>Solution</b></summary>

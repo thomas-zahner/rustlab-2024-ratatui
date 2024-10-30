@@ -60,7 +60,7 @@ impl Widget for &mut RoomList {
 }
 ```
 
-Tip: See the API of the [`tui-tree-widget`](https://docs.rs/tui-tree-widget/) crate.
+💡 **Tip:** See the API of the [`tui-tree-widget`](https://docs.rs/tui-tree-widget/) crate.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -208,7 +208,7 @@ Going through the changes:
 
 🎯 **Task**: Render the `RoomList` widget in the UI.
 
-Tip: Add a new constraint and then call `render_widget` on `self.room_list` in the `draw_ui` method (in `src/ui.rs`):
+💡 **Tip:** Add a new constraint and then call `render_widget` on `self.room_list` in the `draw_ui` method (in `src/ui.rs`):
 
 <details>
 <summary><b>Solution</b></summary>

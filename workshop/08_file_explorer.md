@@ -143,7 +143,7 @@ impl Popup {
 }
 ```
 
-Tip: You can use the [`FileExplorer::new`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.new) or [`FileExplorer::with_theme`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.with_theme) method to create a new file explorer.
+💡 **Tip:** You can use the [`FileExplorer::new`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.new) or [`FileExplorer::with_theme`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.with_theme) method to create a new file explorer.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -174,7 +174,7 @@ impl Popup {
 
 🎯 **Task**: Handle the `Enter` key in the `Popup::handle_input` method when the file explorer is open.
 
-Tip: Send the `Event::FileSelected` event when a file is selected and close the popup via `Event::PopupClosed`.
+💡 **Tip:** Send the `Event::FileSelected` event when a file is selected and close the popup via `Event::PopupClosed`.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -205,7 +205,7 @@ fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {
 }
 ```
 
-Tip: Use `popup_area` to calculate the popup area, similarly to the `render_help` method.
+💡 **Tip:** Use `popup_area` to calculate the popup area, similarly to the `render_help` method.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -320,7 +320,7 @@ Let's update our `src/app.rs` to handle the file explorer popup:
 
 🎯 **Task**: Implement the `Event::FileSelected` event in the `App::handle_event` method.
 
-Tip: When a file is selected in the file explorer, we read the file contents, encode it in base64, and send it to the server as a `Command::SendFile` command.
+💡 **Tip:** When a file is selected in the file explorer, we read the file contents, encode it in base64, and send it to the server as a `Command::SendFile` command.
 
 <details>
 <summary><b>Solution</b></summary>

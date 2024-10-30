@@ -22,7 +22,7 @@ fn create_text_area() -> TextArea<'static> {
 }
 ```
 
-Tip: See the [documentation](https://docs.rs/tui-textarea/latest/tui_textarea/struct.TextArea.html) for more information.
+💡 **Tip:** See the [documentation](https://docs.rs/tui-textarea/latest/tui_textarea/struct.TextArea.html) for more information.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -116,7 +116,7 @@ impl App {
 }
 ```
 
-- Tip:
+- 💡 **Tip:**
   - Send `Command::Quit` to the server when the `Esc` key is pressed.
   - Call the `send_message` method when the `Enter` key is pressed.
   - Pass the rest of the keys to the `TextArea` widget.
@@ -162,7 +162,7 @@ impl App {
 }
 ```
 
-- Tip: Use `tcp_writer` and `text_area.into_lines()` :)
+- 💡 **Tip:** Use `tcp_writer` and `text_area.into_lines()` :)
 
 <details>
 <summary><b>Solution</b></summary>
@@ -217,7 +217,7 @@ impl App {
 }
 ```
 
-Tip:
+💡 **Tip:**
 
 - Create a new file `src/ui.rs` and implement the `draw_ui` method there (don't forget to add `mod ui;` to `src/main.rs`):
 - Use the [`Layout`](https://docs.rs/ratatui/latest/ratatui/layout/struct.Layout.html) to split the available area into two parts:

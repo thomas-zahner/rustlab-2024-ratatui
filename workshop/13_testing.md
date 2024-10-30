@@ -58,7 +58,7 @@ cargo install cargo-insta # install the CLI tool
 
 🎯 **Task**: Write a simple test case.
 
-Tips:
+💡 **Tips:**
 
 - See the following documentation:
   - [Rust unit testing](https://doc.rust-lang.org/rust-by-example/testing/unit_testing.html)

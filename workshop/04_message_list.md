@@ -38,7 +38,7 @@ impl Widget for &mut MessageList {
 }
 ```
 
-Tips:
+💡 **Tips:**
 
 - See [implementing widgets](https://ratatui.rs/concepts/widgets/#implementing-widgets) in the Ratatui documentation.
 - You can use the built-in [`List`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.List.html) widget from Ratatui.

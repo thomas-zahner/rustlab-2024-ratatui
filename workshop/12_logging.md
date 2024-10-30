@@ -87,7 +87,7 @@ impl Widget for &Logger {
 }
 ```
 
-Tip: Construct a [`TuiLoggerSmartWidget`](https://docs.rs/tui-logger/latest/tui_logger/struct.TuiLoggerSmartWidget.html) and render it in the `render` method.
+💡 **Tip:** Construct a [`TuiLoggerSmartWidget`](https://docs.rs/tui-logger/latest/tui_logger/struct.TuiLoggerSmartWidget.html) and render it in the `render` method.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -125,7 +125,7 @@ impl Widget for &Logger {
 
 🎯 **Task**: Print a log in the `handle_input` method.
 
-Tip: Use the `tracing` crate to print an arbitrary log (e.g. `input`)
+💡 **Tip:** Use the `tracing` crate to print an arbitrary log (e.g. `input`)
 
 <details>
 <summary><b>Solution</b></summary>
@@ -203,7 +203,7 @@ fn init_tracing() -> anyhow::Result<WorkerGuard> {
 }
 ```
 
-Tip: See the [`TracingSubscriberLayer`](https://docs.rs/tui-logger/latest/tui_logger/struct.TuiTracingSubscriberLayer.html) from `tui-logger` crate.
+💡 **Tip:** See the [`TracingSubscriberLayer`](https://docs.rs/tui-logger/latest/tui_logger/struct.TuiTracingSubscriberLayer.html) from `tui-logger` crate.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -340,7 +340,7 @@ This also adds an info log when handling server events.
 
 🎯 **Task**: Render the logger widget at the bottom of the screen when it is active.
 
-Tip: Use constraints in `src/ui.rs`,
+💡 **Tip:** Use constraints in `src/ui.rs`,
 
 <details>
 <summary><b>Solution</b></summary>

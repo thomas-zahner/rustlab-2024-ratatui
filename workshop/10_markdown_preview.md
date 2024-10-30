@@ -96,7 +96,7 @@ impl Popup {
 }
 ```
 
-Tip: Decode the base64 encoded contents and convert it to a string for constructing the `MarkdownPreview` variant.
+💡 **Tip:** Decode the base64 encoded contents and convert it to a string for constructing the `MarkdownPreview` variant.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -131,7 +131,7 @@ fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
 }
 ```
 
-Tip: Construct a widget using `tui_markdown::from_str` and render it in a popup area.
+💡 **Tip:** Construct a widget using `tui_markdown::from_str` and render it in a popup area.
 
 <details>
 <summary><b>Solution</b></summary>
@@ -159,7 +159,7 @@ fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
 
 🎯 **Task**: Show the markdown preview popup.
 
-Tip: Decide between image and markdown preview based on the file extension in the `preview_file` method in `src/app.rs`.
+💡 **Tip:** Decide between image and markdown preview based on the file extension in the `preview_file` method in `src/app.rs`.
 
 <details>
 <summary><b>Solution</b></summary>
