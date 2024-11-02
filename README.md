@@ -69,6 +69,6 @@ The client/server architecture is inspired by @pretzelhammer's [chat server](htt
 
 Copyright © 2024, [Orhun Parmaksız](https://github.com/orhun)
 
-Licensed under either [The MIT License](./LICENSE)
+Licensed under [The MIT License](./LICENSE)
 
 🦀 ノ( º \_ º ノ) - respect crables!
