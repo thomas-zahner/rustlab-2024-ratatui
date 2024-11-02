@@ -13,6 +13,16 @@ Here are some ideas to extend the application:
 
 Let us know if you got stuck somewhere or if you think something is wrong!
 
+## Contributing
+
+Ratatui is still a young project and we appreciate your feedback and contributions.
+
+Here's how you can get involved:
+
+- Try building your TUIs with Ratatui and share your experience with us!
+- If you have any questions or need help, reach out on our social platforms!
+- Interested in contributing? Check out the [repository](https://github.com/ratatui/ratatui)!
+
 ## Credits
 
-Ratatui developers, everyone who developed applications using Ratatui, and my mom for making Ratatouille for dinner.
+Thanks to the Ratatui developers, everyone who has built libraries/applications using Ratatui, and my mom for making Ratatouille for dinner. 🤍🐁
