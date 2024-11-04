@@ -51,7 +51,7 @@ A terminal chat application that supports sending messages, files, and images.
 Simply start by cloning this repository:
 
 ```sh
-git clone https://github.com/orhun/rustlab2024
+git clone https://github.com/orhun/rustlab2024-ratatui-workshop
 ```
 
 Your job is to implement a terminal client for a chat application using Ratatui!
