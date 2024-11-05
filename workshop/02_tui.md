@@ -20,6 +20,9 @@ cargo add futures@0.3.31 # async event stream handling
 cargo add anyhow # for easier error handling
 ```
 
+> [!NOTE]  
+> The versions of the dependencies might change in the future. They are pinned to the latest available versions at the time of writing. Please check the latest versions on [crates.io](https://crates.io) while following the chapters.
+
 There are various ways of structuring your Ratatui application (as noted in the [documentation](https://ratatui.rs/concepts)), but we will go with the most simple one for now.
 
 Start by updating the `src/main.rs` as follows:
