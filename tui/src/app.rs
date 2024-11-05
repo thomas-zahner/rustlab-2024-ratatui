@@ -32,8 +32,24 @@ impl App {
         let mut tcp_reader = FramedRead::new(reader, LinesCodec::new());
         self.tcp_writer = Some(FramedWrite::new(writer, LinesCodec::new()));
 
-        // TODO: Read from tcp_reader and term_stream
+        while self.is_running {
+            terminal.draw(|frame| frame.render_widget("Hello Ratatui!", frame.area()))?;
 
+            tokio::select! {
+                Some(crossterm_event) = self.term_stream.next() => {
+                    let crossterm_event = crossterm_event?;
+                    if let Event::Key(key_event) = crossterm_event {
+                        if key_event.code == KeyCode::Esc {
+                            if let Some(writer) = self.tcp_writer.as_mut() {
+                                let _ = writer.send(Command::Quit.to_string()).await;
+                            }
+                            self.is_running = false;
+                        }
+                    }
+                },
+                Some(_tcp_event) = tcp_reader.next() => {}
+            }
+        }
         Ok(())
     }
 }
