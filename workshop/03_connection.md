@@ -1,6 +1,13 @@
 # Server Connection
 
-Let's hook up our application with the server.
+Let's connect our application to the server.
+
+> [!NOTE] 
+> Switch to `chapter-3` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-3
+> ```
 
 ## Parsing Command-Line Arguments
 
@@ -49,7 +56,7 @@ impl Args {
 
 This will parse `--ip` and `--port` arguments from the command-line. If not provided, it will use the default values.
 
-To do the actual parsing, we can update our `main` function and pass the parsed values to our `App`:
+To do the actual parsing, we need to update our `main` function and pass the parsed values to our `App`:
 
 ```diff
 #[tokio::main]
@@ -165,10 +172,6 @@ We now have access to both terminal reader (`term_stream`) and server writer (`t
         }
 ```
 
-</details>
-
----
-
 A couple of points to note about this implementation:
 
 - [`tokio::select!`](https://tokio.rs/tokio/tutorial/select) macro allows us to wait for multiple futures concurrently. In our case, we are waiting for both terminal events and server responses.
@@ -181,9 +184,20 @@ A couple of points to note about this implementation:
  INFO handle{addr=127.0.0.1:34710 username=woodcock}: disconnected
 ```
 
+</details>
+
+---
+
 Now every time you run the TUI, it will connect to the server and read/write events. 🎉
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-3-solution
+> ```
 
 <div style="text-align: right">
 

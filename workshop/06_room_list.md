@@ -1,16 +1,23 @@
 # Room List
 
-We can chat with users and switch between rooms. But how do we know which rooms are available and which users are in the room? We need a way to list all the rooms and users in them.
+We can chat with users and switch between rooms. But how do we know which rooms are available and which users are in the room?
 
 Let's implement a tree-view widget to display this information.
 
 ![room list](images/room_list.gif)
 
+> [!NOTE] 
+> Switch to `chapter-6` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-6
+> ```
+
 ## Implementing the Widget
 
-Disclaimer: you are free to use the Ratatui's built-in `List` widget for this task as well. But let's spice things up a bit with a tree view 🌲
+Disclaimer: You are free to use the Ratatui's built-in `List` widget for this chapter as well. But let's spice things up a bit with a tree view 🌲
 
-For this, we will be using the [`tui-tree-widget`](https://github.com/EdJoPaTo/tui-rs-tree-widget) crate:
+First, add the [`tui-tree-widget`](https://github.com/EdJoPaTo/tui-rs-tree-widget) crate:
 
 ```sh
 cargo add tui-tree-widget@0.22.0
@@ -234,6 +241,13 @@ We are splitting the `message_area` into two areas and `room_area` will take 20%
 Now, when you run the TUI, you should see the list of rooms on the right side of the window. You can switch between rooms by typing `/join <room_name>` in the text area. 🔥
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-6-solution
+> ```
 
 <div style="text-align: right">
 

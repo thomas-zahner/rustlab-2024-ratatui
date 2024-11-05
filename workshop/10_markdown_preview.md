@@ -4,9 +4,18 @@ Similar to the image preview, we can also add a markdown preview feature to the 
 
 ![markdown preview](images/markdown_preview.gif)
 
-Implementing this feature is quite straightforward thanks to the [`tui-markdown`](https://github.com/joshka/tui-markdown) crate and overall convenience of our codebase.
+> [!NOTE] 
+> Switch to `chapter-10` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-10
+> ```
 
-Start by adding the dependency:
+## Implementing the Popup
+
+Implementing this feature will be quite straightforward thanks to the [`tui-markdown`](https://github.com/joshka/tui-markdown) crate!
+
+So start by adding it:
 
 ```sh
 cargo add tui-markdown@0.2.12
@@ -78,8 +87,6 @@ Adding a new popup variant that contains the markdown contents:
      let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
 ```
 
-The most critical part of this change is the `render_markdown_preview` function. The `tui-markdown` crate renders markdown content in the terminal, calculating the necessary area for display (i.e. `clamp`).
-
 ---
 
 🎯 **Task**: Implement the `markdown_preview` method.
@@ -149,6 +156,8 @@ fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
 }
 ```
 
+The `tui-markdown` crate renders markdown content in the terminal, calculating the necessary area for display (i.e. `clamp`).
+
 </details>
 
 ---
@@ -191,6 +200,13 @@ fn render_markdown_preview(area: Rect, buf: &mut Buffer, contents: &str) {
 That's it! You should now be able to preview markdown files that are sent to the chat. 🔥
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-10-solution
+> ```
 
 <div style="text-align: right">
 

@@ -4,7 +4,16 @@ Now that we have our own project in the workspace, it is time to initialize the 
 
 It is time to switch to the `tui` directory (`cd tui/`) since we will be working there from now on.
 
-Since our application will be reading events both from a TCP connection and the terminal, we will need to handle them concurrently. In Rust, we can achieve this by making our application asynchronous (or commonly known as "async"). There are various runtimes available for async Rust, but we will be using the [`tokio`](https://tokio.rs) runtime for this workshop. Although it might sound a bit scary at first, all you need to do is add the `tokio` dependency and use the `tokio::main` attribute to make your application async.
+> [!NOTE]
+> Switch to `chapter-2` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-2
+> ```
+
+Since our application will be reading events both from a TCP connection and the terminal, we will need to handle them concurrently. In Rust, we can achieve this by making our application asynchronous (or commonly known as "async"). There are various runtimes available for async Rust, but we will be using the [`tokio`](https://tokio.rs) runtime for this workshop.
+
+Although async might sound a bit scary at first, all you need to do is add the `tokio` dependency and use the `tokio::main` attribute to make your application async.
 
 On the other hand, we will be using Ratatui along with [`crossterm`](https://github.com/crossterm-rs/crossterm) backend, which provides cross-platform terminal event handling.
 
@@ -42,7 +51,7 @@ async fn main() -> anyhow::Result<()> {
 }
 ```
 
-Initializing the terminal (via `ratatui::init`) is necessary to ensure that the TUI uses an alternate screen buffer and let us control the events properly. Then we need to call `ratatui::restore` to back to the previous state respectively. `ratatui::init` also gives us a terminal type to further interact with the terminal in terms of drawing the UI and doing other things. See the [documentation](https://ratatui.rs/concepts/backends/alternate-screen/) for more information.
+Initializing the terminal (via `ratatui::init`) is necessary to ensure that the TUI uses an alternate screen buffer and let us control the events properly. Then we need to call `ratatui::restore` to go back to the previous state respectively. `ratatui::init` also gives us the `Terminal` type to further interact with the terminal in terms of drawing the UI and doing other operations. See the [documentation](https://ratatui.rs/concepts/backends/alternate-screen/) for more details.
 
 Then create a new file `src/app.rs` with the following content:
 
@@ -122,6 +131,13 @@ We will build upon the `App` struct in the next chapters so it is the central pa
 When you run the application (`cargo run`), you should see the Ratatui window with the text "Hello Ratatui!" in the center. You can exit the application by pressing the `Esc` key.
 
 ---
+
+> [!NOTE]
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-2-solution
+> ```
 
 <div style="text-align: right">
 

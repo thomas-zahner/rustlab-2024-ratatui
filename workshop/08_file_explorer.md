@@ -1,25 +1,30 @@
 # File Explorer
 
-As you might have realized, the server supports sending/receiving base64 encoded files via `Command::SendFile` and `RoomEvent::File`.
+The server supports sending/receiving base64 encoded files via `Command::SendFile` command and `RoomEvent::File` event.
 
 So let's implement a simple file explorer/picker to send files!
 
 ![file explorer](images/file_explorer.gif)
 
+> [!NOTE] 
+> Switch to `chapter-8` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-8
+> ```
+
 ## Implementing the Popup
 
-The file explorer will be essentially a popup, similar to the help menu we implemented in the previous chapter.
-
-We will be using the [`ratatui-explorer`](https://github.com/tatounee/ratatui-explorer) crate to do the heavy lifting for us. All we need to do is to refactor our current `src/popup.rs` module to allow different kinds of popups.
-
-Start by adding the dependencies:
+We will be using the [`ratatui-explorer`](https://github.com/tatounee/ratatui-explorer) crate to do the heavy lifting for us. So let's start by adding the dependencies:
 
 ```sh
 cargo add ratatui-explorer@0.1.2
 cargo add base64@0.22.1 # for encoding files
 ```
 
-You can refactor the `HelpPopup` struct into a more generic `Popup` enum and add a variant for the file explorer:
+The file explorer will be essentially a popup, similar to the help menu we implemented in the previous chapter. All we need to do is to refactor our current `src/popup.rs` module to allow different kinds of popups.
+
+So let's refactor the `HelpPopup` struct into a more generic `Popup` enum and add a variant for the file explorer:
 
 ```diff
 +use std::io;
@@ -131,6 +136,12 @@ You can refactor the `HelpPopup` struct into a more generic `Popup` enum and add
      let horizontal = Layout::horizontal([Constraint::Percentage(percent_x)]).flex(Flex::Center);
 ```
 
+In summary:
+
+- We have added a `Popup::file_explorer` method to create a new `Popup::FileExplorer` variant.
+- The `Popup::handle_input` method now takes a `CrosstermEvent` parameter to handle raw events. See the [`handle`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.handle) method of the `FileExplorer` struct for more information.
+- We send a `Event::FileSelected` event when a file is selected in the file explorer. (will be implemented in a bit)
+
 ---
 
 🎯 **Task**: Implement the `Popup::file_explorer` method.
@@ -221,12 +232,6 @@ fn render_explorer(area: Rect, buf: &mut Buffer, explorer: &mut FileExplorer) {
 </details>
 
 ---
-
-In summary:
-
-- We have added a `Popup::file_explorer` method to create a new `Popup::FileExplorer` variant.
-- The `Popup::handle_input` method now takes a `CrosstermEvent` parameter to handle raw events. See the [`handle`](https://docs.rs/ratatui-explorer/latest/ratatui_explorer/struct.FileExplorer.html#method.handle) method of the `FileExplorer` struct for more information.
-- We send a `Event::FileSelected` event when a file is selected in the file explorer. (will be implemented in a bit)
 
 ## Updating the Application
 
@@ -368,6 +373,13 @@ Event::FileSelected(file) => {
 Now you can run the TUI and send files to the server! 📁
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-8-solution
+> ```
 
 <div style="text-align: right">
 

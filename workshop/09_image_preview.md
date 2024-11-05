@@ -1,10 +1,17 @@
 # Image Preview
 
-Wouldn't it be nice to preview the images sent to the chat, right from the terminal? Yup!
+Wouldn't it be nice to preview the images sent to the chat, right from the terminal?
 
 ![image preview](images/image_preview.gif)
 
-We will be implementing this popup and it will be shown when an item in the message list is selected and Ctrl-p is pressed.
+We will be implementing the popup shown above and it will be shown when an item in the message list is selected and Ctrl-p is pressed.
+
+> [!NOTE] 
+> Switch to `chapter-9` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-9
+> ```
 
 ## Making MessageList Stateful
 
@@ -144,9 +151,9 @@ impl App {
 
 ## Rendering Images
 
-Now, onto the main question: how do we render images in the terminal?
+Now, onto the main question: How do we render images in the terminal? 🤔
 
-There are a couple of protocols for that (sixel, kitty, etc.) and we can also use unicode half-blocks for pixelated images.
+There are a couple of protocols for that (`sixel`, `kitty`, etc.) and we can also use unicode half-blocks for pixelated images.
 
 Thanks to the [`ratatui-image`](https://github.com/benjajaja/ratatui-image) crate, we don't need to worry much about the details and just use the `StatefulImage` widget that it provides!
 
@@ -241,7 +248,12 @@ impl Popup {
 }
 ```
 
-💡 **Tip:** Decode the base64 encoded image and load it using the `image` crate. Then, create a `Picker` and resize the image using the `new_resize_protocol` method.
+💡 **Tips:**
+
+- Decode the base64 encoded image and load it using the `image` crate. Then, create a `Picker` and resize the image using the `new_resize_protocol` method.
+- See the API docs for [`base64`](https://docs.rs/base64)
+- See [`load_from_memory`](https://docs.rs/image/latest/image/fn.load_from_memory.html) method in the `image` crate.
+- See the example in [`ratatui-image`](https://github.com/benjajaja/ratatui-image) repository.
 
 <details>
 <summary><b>Solution</b> ✅</summary>
@@ -280,7 +292,7 @@ fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn Sta
 }
 ```
 
-💡 **Tip:** This should be similar to the other popups. Use `StatefulImage` widget.
+💡 **Tip:** This should be similar to the other popups. Use [`StatefulImage`](https://docs.rs/ratatui-image/latest/ratatui_image/struct.StatefulImage.html) widget.
 
 <details>
 <summary><b>Solution</b> ✅</summary>
@@ -300,6 +312,13 @@ fn render_image_preview(area: Rect, buf: &mut Buffer, protocol: &mut Box<dyn Sta
 When you run the TUI and press `Ctrl-p` on an image message, you should see the preview of the image! 🖼️
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-9-solution
+> ```
 
 <div style="text-align: right">
 

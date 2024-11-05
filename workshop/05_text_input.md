@@ -4,6 +4,13 @@ Although we can see the messages coming from the server, we can't send any messa
 
 ![text input](images/text_input.gif)
 
+> [!NOTE] 
+> Switch to `chapter-5` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-5
+> ```
+
 ## Handling User Input
 
 It is possible to implement an user input widget from scratch (via controlling the terminal cursor etc.), but we will be using [`tui-textarea`](https://github.com/rhysd/tui-textarea) for more functional text input handling.
@@ -22,7 +29,7 @@ fn create_text_area() -> TextArea<'static> {
 }
 ```
 
-💡 **Tip:** See the [documentation](https://docs.rs/tui-textarea/latest/tui_textarea/struct.TextArea.html) for more information.
+💡 **Tip:** See the [TextArea documentation](https://docs.rs/tui-textarea/latest/tui_textarea/struct.TextArea.html) for more information.
 
 <details>
 <summary><b>Solution</b> ✅</summary>
@@ -275,9 +282,16 @@ And the rest is simply rendering the widgets in their respective areas.
 
 ---
 
-If you run the TUI now, you should be able to send messages to the server and chat with other users! 🚀
+If you run the TUI now, you should be able to send messages to the server and chat with the other users! 🚀
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-5-solution
+> ```
 
 <div style="text-align: right">
 

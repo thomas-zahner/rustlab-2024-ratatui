@@ -2,7 +2,14 @@
 
 There are various ways to test a TUI application and it depends on how you structured your application. But in most cases, [testing with snapshots](https://ratatui.rs/recipes/testing/snapshots/) would be a viable solution.
 
-For that, we will be using the [insta](https://github.com/mitsuhiko/insta) crate.
+> [!NOTE] 
+> Switch to `chapter-13` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-13
+> ```
+
+Snapshots allow you to capture the output of your application and compare it with the expected output as shown below.
 
 ```log
 running 1 test
@@ -41,7 +48,7 @@ Stopped on the first failure. Run `cargo insta test` to run all snapshots.
 test tests::test_render_app ... FAILED
 ```
 
-Snapshots allow you to capture the output of your application and compare it with the expected output as shown above.
+For achieving this, we will be using the [insta](https://github.com/mitsuhiko/insta) crate.
 
 If the output is different, the test will fail and you can review the changes with `cargo insta review`.
 
@@ -97,6 +104,13 @@ When you run `cargo test`, the test will fail and it will generate a snapshot fi
 Congratulations! You now have galaxy level tests 🛡️
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-13-solution
+> ```
 
 <div style="text-align: right">
 

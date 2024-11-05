@@ -1,8 +1,15 @@
 # Effects
 
-Back in the old days, MSN messenger had this nudge feature where you could send a nudge to your friend's chat window. Let's recreate this feature in our TUI with some terminal effects!
+The legendary MSN messenger had the nudge feature where you could send a nudge to your friend's chat window. Let's recreate this feature in our TUI with some terminal effects!
 
 ![effects](images/effects.gif)
+
+> [!NOTE] 
+> Switch to `chapter-11` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-11
+> ```
 
 ## Creating Effects
 
@@ -214,9 +221,9 @@ RoomEvent::Nudge(username) => {
 }
 ```
 
-</details>
-
 We are setting the `Popup::Effect` variant when a nudge event is received for the current user.
+
+</details>
 
 ---
 
@@ -252,6 +259,13 @@ impl MessageList {
 </details>
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-11-solution
+> ```
 
 <div style="text-align: right">
 

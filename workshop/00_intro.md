@@ -1,21 +1,61 @@
 # Introduction
 
-Welcome to the workshop! 👋
+Welcome to the Ratatui workshop! 👋
 
 You will learn to cook up a TUI from the ground up and create your very own IRC-like chat client! 👨‍🍳
+
+Let's start!
+
+## Workshop Format
+
+The workshop is divided into chapters, each focusing on a specific part of the application and they build upon each other. See the [chapters](../README.md#chapters) for more details.
+
+Each chapter is in its own branch:
+
+- `chapter-N`: Contains the code with incomplete parts.
+- `chapter-N-solution`: Contains the full solution to move on to the next chapter.
+
+Replace `N` with the chapter number (e.g. `chapter-5`)
+
+The recommended way of following the workshop is:
+
+1. Checkout the chapter branch:
+
+```sh
+git merge origin/chapter-N
+```
+
+2. Read through the chapter and implement the missing parts. You can get help from the provided hints and solutions.
+
+3. When you are done, either merge the solution branch (and resolve conflicts if any):
+
+```sh
+git merge origin/chapter-N-solution
+```
+
+Or discard your changes and merge the solution branch:
+
+```sh
+# This is useful if you don't want to deal with conflicts
+git merge -X theirs origin/chapter-N-solution
+```
+
+4. Ask questions (submit issues) if you are stuck or need help!
+
+## Repository Structure
 
 The repository contains a [cargo workspace](https://doc.rust-lang.org/cargo/reference/workspaces.html) with the following crates:
 
 - [`server`](../server): A TCP server that handles the communication between clients.
 - [`common`](../common): Shared types (e.g. commands, events) for the server and client.
 
-The server part is already implemented, so you can only focus on the client. But we are not going to stop you from taking a peek at the server code if you are interested :)
+The server part is already implemented, so you can only focus on the client. But we are not going to stop you from taking a peek at the server code if you are interested! :)
 
-## Testing out the server
+### Testing out the server
 
-We are assuming that you have already installed the latest stable version of Rust. If not, please follow the presequites in the [README](../README.md).
+We are assuming that you have already installed the latest stable version of Rust. If not, please check out the [prerequisites](../README.md).
 
-To test out the server, you can run the following command on one terminal:
+To test out the server, you can run the following command on a terminal:
 
 ```sh
 cargo run -p server
@@ -48,7 +88,24 @@ You can then type in commands like `/help`, `/join room`, `/quit`, etc. to inter
 
 You can see that the server uses the JSON format for the responses. As an additional point, it uses base64 encoding for the byte data. This will come important later.
 
-## Architecture
+### Server Commands
+
+Here is the list of server commands that we are going to implement in the client:
+
+| Command         | Syntax                    | Description                                 |
+| --------------- | ------------------------- | ------------------------------------------- |
+| Help            | `/help`                   | Displays help information                   |
+| Change Username | `/name <username>`        | Changes the username to `<username>`        |
+| List Rooms      | `/rooms`                  | Lists available chat rooms                  |
+| Join Room       | `/join <roomname>`        | Joins the specified `<roomname>`            |
+| List Users      | `/users`                  | Lists users in the current room             |
+| Send File       | `/file <filename> <data>` | Sends a file with `<filename>` and `<data>` |
+| Nudge User      | `/nudge <username>`       | Sends a nudge to `<username>`               |
+| Quit            | `/quit`                   | Exits the chat                              |
+
+See the [`common`](../common) crate for more details.
+
+### Architecture
 
 The architecture diagram is shown below:
 

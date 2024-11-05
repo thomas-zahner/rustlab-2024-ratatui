@@ -4,6 +4,13 @@ Let's initialize logging and add a logger pane to our TUI application to display
 
 ![logging](images/logging.gif)
 
+> [!NOTE] 
+> Switch to `chapter-12` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-12
+> ```
+
 ## Implementing the Widget
 
 In the Ratatui world, you can achieve this very easily with using the [`tui-logger`](https://github.com/gin66/tui-logger) crate. It provides required methods to initialize a logger and a smart widget to display logs.
@@ -380,6 +387,13 @@ use crate::app::App;
 Run your TUI and press `Ctrl-l` to see the logger pane at the bottom of the screen now! 🎉
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-12-solution
+> ```
 
 <div style="text-align: right">
 

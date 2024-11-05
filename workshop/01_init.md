@@ -44,6 +44,13 @@ But don't get too excited, we have a long way to go.
 
 ---
 
+> [!NOTE] 
+> Get the initial code for the TUI project by running:
+>
+> ```sh
+> git merge origin/chapter-1
+> ```
+
 <div style="text-align: right">
 
 Continue to the [next chapter](./02_tui.md) to initialize TUI with Ratatui. ➡️

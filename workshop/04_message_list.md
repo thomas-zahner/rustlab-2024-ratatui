@@ -4,9 +4,16 @@ Let's build this list widget for displaying the messages that we receive from th
 
 ![message list](images/message_list.png)
 
+> [!NOTE] 
+> Switch to `chapter-4` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-4
+> ```
+
 ## Implementing the Widget
 
-When it comes to adding new widgets, the approach that we will follow is:
+When it comes to adding new widgets, we are going to follow this approach:
 
 1. Create a new module for the widget.
 2. Implement the [`Widget`](https://docs.rs/ratatui/latest/ratatui/widgets/trait.Widget.html) trait.
@@ -329,6 +336,13 @@ You can see that we are matching on specific server events and updating the `mes
 In the next chapters, we will be implementing the rest of these events :) But for now, if you run the TUI application, you should see the server messages displayed in the list widget.
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-4-solution
+> ```
 
 <div style="text-align: right">
 

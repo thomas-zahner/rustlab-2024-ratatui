@@ -17,6 +17,7 @@ A terminal chat application that supports sending messages, files, and images.
 - Get familiar with the fundamentals of [Ratatui](https://ratatui.rs).
 - Learn how to incorporate widgets and structure your application.
 - Understand the best practices of building TUI applications in Rust.
+- Have fun!
 
 ### Chapters
 
@@ -56,9 +57,23 @@ git clone https://github.com/orhun/rustlab2024-ratatui-workshop
 
 Your job is to implement a terminal client for a chat application using Ratatui!
 
-[Click here to start the workshop](./workshop/00_intro.md)! ➡️
+[**Click here to start the workshop**](./workshop/00_intro.md)! ➡️
 
 Start reading through the chapters and sometimes you will be asked to implement some parts of the application. Don't worry, the solutions are also provided! :)
+
+Let us know if you got stuck somewhere or if you think something is wrong!
+
+### Presenting
+
+You can also present this workshop at your local Rust meetup or conference!
+
+There are minimal slides included in the `presentation.md` file. You can use [`presenterm`](https://github.com/mfontanini/presenterm) to start the presentation:
+
+```sh
+presenterm -c config.yml presentation.md
+```
+
+Don't forget to _tweet_ at us!
 
 ## References
 

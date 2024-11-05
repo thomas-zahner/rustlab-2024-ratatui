@@ -6,14 +6,20 @@ If everything went right, you should end up with a little bit of something like 
 
 ![demo](../assets/demo.gif)
 
+> [!NOTE]
+> Check out the final code by running:
+>
+> ```sh
+> git merge origin/spoilers
+> ```
+
 Here are some ideas to extend the application:
 
 - Add a [`Scrollbar`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.Scrollbar.html) to the message list
 - Support different themes
+- Improve the look & feel by using different border styles, colors, etc.
 
-Let us know if you got stuck somewhere or if you think something is wrong!
-
-## Get involved
+## Important Message
 
 Ratatui is still a young project and we appreciate your feedback and contributions.
 
@@ -22,6 +28,8 @@ Here's how you can get involved:
 - Try building your TUIs with Ratatui and share your experience with us!
 - If you have any questions or need help, reach out on our social platforms!
 - Check out the [repository](https://github.com/ratatui/ratatui) if you are interested in contributing.
+
+Thank you in advance!
 
 ## Credits
 

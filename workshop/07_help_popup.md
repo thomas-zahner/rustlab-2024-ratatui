@@ -6,11 +6,18 @@ In this chapter, we will implement a popup window that displays the key bindings
 
 ![help popup](images/help_popup.png)
 
-This chapter is also important to follow because we will be using the same popup mechanism for the next widget we are going to implement.
+This chapter is also important to follow because we will be using the same popup mechanism for the next widgets that we are going to implement.
+
+> [!NOTE] 
+> Switch to `chapter-7` branch to get ready for this chapter:
+>
+> ```sh
+> git merge origin/chapter-7
+> ```
 
 ## Refactoring Event Handling
 
-Now, here is a question to ponder: when we display the help popup, how the event handling should work?
+🤔 **Question**: When we display the help popup, how the event handling should work?
 
 The answer depends on your project structure, but we are going to design this in a way that the help popup will be able to communicate with the main application, very much like the terminal events. In other words, we will support sending events **within** the application.
 
@@ -396,7 +403,7 @@ Here is the final changes that we need to make in `src/app.rs`:
          self.message_list.events.push(event.clone());
 ```
 
-`KEY_BINDINGS` is a constant string that contains the key bindings. We use this to create the `HelpPopup` instance when the user presses `Ctrl-h`. We now also handle the `Event::PopupClosed` to close the popup (i.e. set it to `None`).
+We use `KEY_BINDINGS` constant to create the `HelpPopup` instance when the user presses `Ctrl-h`. We now also handle the `Event::PopupClosed` to close the popup (i.e. set it to `None`).
 
 ---
 
@@ -457,6 +464,13 @@ Don't forget to render in `src/ui.rs`!
 Now you should be able to see the help popup when you press `Ctrl-h` in the TUI!
 
 ---
+
+> [!NOTE] 
+> Get the completed code for this chapter by running:
+>
+> ```sh
+> git merge origin/chapter-7-solution
+> ```
 
 <div style="text-align: right">
 
