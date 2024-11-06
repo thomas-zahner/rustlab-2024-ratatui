@@ -17,6 +17,8 @@ jobs:
       - name: Build workshop
         shell: bash
         run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
           for i in {1..12}; do
             git merge "origin/chapter-$i"
             if [ "$i" -ne 1 ]; then
