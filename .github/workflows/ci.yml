@@ -16,9 +16,9 @@ jobs:
         shell: bash
         run: |
           for i in {1..12}; do
-            git merge "chapter-$i"
+            git merge "origin/chapter-$i"
             if [ "$i" -ne 1 ]; then
-              git merge "chapter-$i-solution"
+              git merge "origin/chapter-$i-solution"
             fi
           done
 
