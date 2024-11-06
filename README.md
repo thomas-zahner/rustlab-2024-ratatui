@@ -2,7 +2,7 @@
 
 # Ratatui Workshop 👨‍🍳🐀
 
-This workshop is prepared for ["Cooking up with TUIs with Ratatui"](https://rustlab.it/talks/cooking-up-with-tuis-with-ratatui) session at [RustLab 2024](https://rustlab.it).
+This workshop is prepared for ["Cooking up TUIs with Ratatui"](https://rustlab.it/talks/cooking-up-with-tuis-with-ratatui) session at [RustLab 2024](https://rustlab.it).
 
 You can also follow this guide individually and complete the workshop. See [Getting Started](#getting-started).
 
