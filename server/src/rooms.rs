@@ -39,7 +39,7 @@ impl Rooms {
     pub fn leave(&self, username: &Username, room: &Room) {
         room.leave(username);
         if room.is_empty() {
-            self.delete_room(&room);
+            self.delete_room(room);
         }
     }
 
