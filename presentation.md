@@ -1,5 +1,5 @@
 ---
-title: Cooking up with TUIs with Ratatui
+title: Cooking up TUIs with Ratatui
 sub_title: Welcome to the workshop!
 author: Orhun Parmaksız
 theme:
