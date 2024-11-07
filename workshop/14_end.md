@@ -13,6 +13,15 @@ If everything went right, you should end up with a little bit of something like 
 > git merge origin/spoilers
 > ```
 
+> [!TIP]
+> If the public instance is still up when you read this, you can connect to it at **104.248.254.123** and chat with others!
+>
+> Simply run:
+>
+> ```sh
+> cargo run -p tui -- --ip 104.248.254.123
+> ```
+
 Here are some ideas to extend the application:
 
 - Add a [`Scrollbar`](https://docs.rs/ratatui/latest/ratatui/widgets/struct.Scrollbar.html) to the message list
