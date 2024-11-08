@@ -53,7 +53,7 @@ async fn main() -> anyhow::Result<()> {
 
 Initializing the terminal (via `ratatui::init`) is necessary to ensure that the TUI uses an alternate screen buffer and let us control the events properly. Then we need to call `ratatui::restore` to go back to the previous state respectively. `ratatui::init` also gives us the `Terminal` type to further interact with the terminal in terms of drawing the UI and doing other operations. See the [documentation](https://ratatui.rs/concepts/backends/alternate-screen/) for more details.
 
-Then create a new file `src/app.rs` with the following content:
+Then create a new file `src/app.rs` with the following contents:
 
 ```rust
 use crossterm::event::{Event, EventStream, KeyCode};
