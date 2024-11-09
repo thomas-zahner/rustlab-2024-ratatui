@@ -444,6 +444,12 @@ Ideas to extend the application:
 - Support different themes
 - Different border styles, colors, etc.
 
+Learn more about Ratatui:
+
+- [Ratatui's website](https://ratatui.rs)
+- [Ratatui templates](https://github.com/ratatui/templates)
+- [Awesome applications built with Ratatui](https://github.com/ratatui/awesome-ratatui)
+
 Get involved:
 
 - Try building your TUIs with Ratatui and share your experience with us!

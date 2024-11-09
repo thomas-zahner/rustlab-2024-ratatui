@@ -28,6 +28,12 @@ Here are some ideas to extend the application:
 - Support different themes
 - Improve the look & feel by using different border styles, colors, etc.
 
+If you want to learn more about Ratatui, check out these resources:
+
+- [Ratatui's website](https://ratatui.rs)
+- [Ratatui templates](https://github.com/ratatui/templates)
+- [Awesome applications built with Ratatui](https://github.com/ratatui/awesome-ratatui)
+
 ## Important Message
 
 Ratatui is still a young project and we appreciate your feedback and contributions.
