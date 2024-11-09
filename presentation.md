@@ -29,6 +29,8 @@ theme:
 
 `https://orhun.dev`
 
+![](./assets/rat-spinning.gif)
+
 <!-- end_slide -->
 
 # What will you build?
@@ -49,6 +51,8 @@ A terminal chat application that supports sending messages, files, and images.
 - Learn how to incorporate widgets and structure your application.
 - Understand the best practices of building TUI applications in Rust.
 - Have fun!
+
+![image:width:50%](./assets/ratatui-logo.png)
 
 <!-- end_slide -->
 
@@ -429,3 +433,21 @@ git merge origin/chapter-13
 ## The End
 
 Congratulations! 🎉 You have completed the workshop and became a real terminal chef! 👨‍🍳🐀
+
+Connect to the public instance:
+
+> cargo run -p tui -- --ip 104.248.254.123
+
+Ideas to extend the application:
+
+- Add a `Scrollbar`
+- Support different themes
+- Different border styles, colors, etc.
+
+Get involved:
+
+- Try building your TUIs with Ratatui and share your experience with us!
+- Join our social platforms for questions and help!
+- Check out our GitHub repository if you are interested in contributing.
+
+🧀
