@@ -4,7 +4,7 @@ use ratatui::{
     layout::Rect,
     style::{Color, Modifier, Style, Stylize},
     text::{Line, Span},
-    widgets::{Block, List, ListDirection, ListItem, Widget},
+    widgets::{Block, List, ListDirection, ListItem, Paragraph, Widget},
 };
 
 #[derive(Debug, Clone, Default)]
@@ -18,6 +18,16 @@ impl Widget for &mut MessageList {
     fn render(self, area: Rect, buf: &mut Buffer) {
         // TODO: Implement rendering a List: <https://docs.rs/ratatui/latest/ratatui/widgets/struct.List.html>
         // Use the helper functions below to render the list items
+
+        let text = vec![Line::from(vec![
+            Span::raw(format!("Room: {} ", self.room_name)),
+            Span::styled(
+                format!("User: {}", self.username),
+                Style::new().green().italic(),
+            ),
+        ])];
+
+        Paragraph::new(text).render(area, buf);
     }
 }
 
